@@ -6,6 +6,14 @@
 #include "GameFramework/Actor.h"
 #include "GameBoard.generated.h"
 
+class AGemBase;
+
+UENUM(BlueprintType)
+enum class EGemType : uint8
+{
+	Square
+};
+
 /*
 * Base class for the game board in a match three game
 */
@@ -24,6 +32,9 @@ protected:
 public:
 	AGameBoard();
 
+	UFUNCTION(BlueprintCallable, Category = "Game Board")
+	void PlaceGem();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	int32 BoardWidth = 8;
@@ -34,4 +45,8 @@ protected:
 	// Spacing between cell centers on the game board
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	float CellSpacing = 200.f;
+
+	// Mapping from gem types to their blueprint actors
+	UPROPERTY(EditAnywhere, Category = "Board Properties")
+	TMap<EGemType, TSubclassOf<AGemBase>> GemActorClasses;
 };

@@ -3,6 +3,7 @@
 
 #include "GameBoard.h"
 
+#include "GemBase.h"
 #include "DrawDebugHelpers.h"
 
 AGameBoard::AGameBoard()
@@ -10,9 +11,18 @@ AGameBoard::AGameBoard()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+void AGameBoard::PlaceGem()
+{
+	FTransform PlaceLocation;
+	PlaceLocation.SetLocation(GetActorLocation());
+	GetWorld()->SpawnActor<AGemBase>(GemActorClasses[EGemType::Square], PlaceLocation);
+}
+
 void AGameBoard::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PlaceGem();
 }
 
 void AGameBoard::Tick(float DeltaTime)
