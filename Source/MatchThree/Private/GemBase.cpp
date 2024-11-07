@@ -11,7 +11,7 @@ AGemBase::AGemBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
-	StaticMesh->SetupAttachment(GetRootComponent());
+	SetRootComponent(StaticMesh);
 
 	StaticMesh->SetCollisionResponseToChannel(ECC_Gem, ECR_Block);
 
