@@ -11,21 +11,25 @@ AGameBoard::AGameBoard()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void AGameBoard::PlaceGem()
+void AGameBoard::PlaceGem(const FBoardLocation& InCoordinate)
 {
-	FTransform PlaceLocation;
-	PlaceLocation.SetLocation(GetActorLocation());
+	FVector CellPosition = GetActorLocation();
+	CellPosition += GetActorRightVector() * InCoordinate.X * CellSpacing;
+	CellPosition += GetActorForwardVector() * InCoordinate.Y * CellSpacing;
+	FTransform PlaceTransform;
+	PlaceTransform.SetLocation(CellPosition);
 
-	AGemBase* GemToPlace = GetWorld()->SpawnActorDeferred<AGemBase>(AGemBase::StaticClass(), PlaceLocation);
+	AGemBase* GemToPlace = GetWorld()->SpawnActorDeferred<AGemBase>(AGemBase::StaticClass(), PlaceTransform);
 	GemToPlace->SetData(GemData[EGemType::Square]);
-	GemToPlace->FinishSpawning(PlaceLocation);
+	GemToPlace->FinishSpawning(PlaceTransform);
 }
 
 void AGameBoard::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlaceGem();
+	PlaceGem(FBoardLocation(0, 0));
+	PlaceGem(FBoardLocation(1, 0));
 }
 
 void AGameBoard::Tick(float DeltaTime)

@@ -10,16 +10,42 @@ class AGemBase;
 class UGemDataAsset;
 
 
-UENUM(BlueprintType)
+UENUM()
 enum class EGemType : uint8
 {
 	Square
 };
 
 /*
+* Struct representing a coordinate on the board
+*/
+USTRUCT(Blueprintable)
+struct FBoardLocation
+{
+	GENERATED_BODY()
+
+	FBoardLocation()
+	{
+		X = 0;
+		Y = 0;
+	}
+	FBoardLocation(int InX, int InY)
+	{
+		X = InX;
+		Y = InY;
+	}
+
+	UPROPERTY()
+	int32 X = 0;  
+
+	UPROPERTY()
+	int32 Y = 0;
+};
+
+/*
 * Base class for the game board in a match three game
 */
-UCLASS()
+UCLASS(BlueprintType)
 class MATCHTHREE_API AGameBoard : public AActor
 {
 	GENERATED_BODY()
@@ -35,7 +61,7 @@ public:
 	AGameBoard();
 
 	UFUNCTION(BlueprintCallable, Category = "Game Board")
-	void PlaceGem();
+	void PlaceGem(const FBoardLocation& InCoordinate);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
