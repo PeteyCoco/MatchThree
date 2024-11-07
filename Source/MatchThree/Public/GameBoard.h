@@ -55,13 +55,22 @@ public:
 	virtual void Tick(float DeltaTime) override;
 protected:
 	virtual void BeginPlay() override;
+	void InitializeInternalBoard();
 	//~ End AActor interface
 
 public:
 	AGameBoard();
 
 	UFUNCTION(BlueprintCallable, Category = "Game Board")
-	void PlaceGem(const FBoardLocation& InCoordinate);
+	void SpawnGem(int32 Column);
+
+	// Get the gem at the given board location
+	UFUNCTION(BlueprintCallable, Category = "Game Board")
+	AGemBase* GetGem(const FBoardLocation& InLocation) const;
+
+	// Get the world location of the given board location
+	UFUNCTION(BlueprintCallable, Category = "Game Board")
+	FVector GetWorldLocation(const FBoardLocation& InLocation) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
@@ -81,4 +90,7 @@ protected:
 	// Mapping from gem types to their data assets
 	UPROPERTY(EditAnywhere, Category = "Board Properties")
 	TMap<EGemType, UGemDataAsset*> GemData;
+
+	/* Internal gem locations on the board*/
+	TArray<TArray<AGemBase*>> Gems;
 };
