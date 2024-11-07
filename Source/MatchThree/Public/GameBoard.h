@@ -72,6 +72,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game Board")
 	FVector GetWorldLocation(const FBoardLocation& InLocation) const;
 
+	// Get the number of gems at the bottom of the column
+	int32 GetColumnHeight(int32 Column) const;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	int32 BoardWidth = 8;
@@ -82,6 +85,10 @@ protected:
 	// Spacing between cell centers on the game board
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	float CellSpacing = 200.f;
+
+	// Distance above the board to spawn gems (in units of CellSpacing)
+	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
+	float DistanceSpawnAboveBoard = 5.f;
 
 	// Mapping from gem types to their blueprint actors
 	UPROPERTY(EditAnywhere, Category = "Board Properties")

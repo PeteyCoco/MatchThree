@@ -34,7 +34,7 @@ void AGemBase::Tick(float DeltaTime)
 		const FVector NewLocation = FMath::VInterpConstantTo(GetActorLocation(), TargetLocation, DeltaTime, MovementSpeed);
 		const float NewDistanceToTarget = (NewLocation - TargetLocation).Size();
 
-		// Correct for overshooting
+		// Correct for overshooting target
 		NewDistanceToTarget < CurrentDistanceToTarget ? SetActorLocation(NewLocation) : SetActorLocation(TargetLocation);
 	}
 }

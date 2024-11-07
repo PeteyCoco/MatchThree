@@ -14,9 +14,10 @@ AGameBoard::AGameBoard()
 void AGameBoard::SpawnGem(int32 Column)
 {
 	// Spawn at above board
+	const int Row = GetColumnHeight(Column);
 	FVector SpawnLocation = GetActorLocation();
 	SpawnLocation += GetActorRightVector() * Column * CellSpacing;
-	SpawnLocation += GetActorForwardVector() * 20.f * CellSpacing;
+	SpawnLocation += GetActorForwardVector() * (Row + BoardHeight + DistanceSpawnAboveBoard) * CellSpacing;
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(SpawnLocation);
 
@@ -25,8 +26,8 @@ void AGameBoard::SpawnGem(int32 Column)
 	GemToPlace->FinishSpawning(SpawnTransform);
 
 	// Set the gem on the board
-	Gems[Column][0] = GemToPlace;
-	GemToPlace->MoveTo(GetWorldLocation({ Column, 0 }));
+	Gems[Column][Row] = GemToPlace;
+	GemToPlace->MoveTo(GetWorldLocation({ Column, Row }));
 
 }
 
@@ -43,6 +44,16 @@ FVector AGameBoard::GetWorldLocation(const FBoardLocation& InLocation) const
 	return WorldPosition;
 }
 
+int32 AGameBoard::GetColumnHeight(int32 Column) const
+{
+	int32 Height = 0;
+	while (Height < BoardHeight && GetGem({ Column, Height }))
+	{
+		++Height;
+	}
+	return Height;
+}
+
 void AGameBoard::BeginPlay()
 {
 	Super::BeginPlay();
@@ -50,6 +61,10 @@ void AGameBoard::BeginPlay()
 	InitializeInternalBoard();
 
 	SpawnGem(0);
+	SpawnGem(0);
+	SpawnGem(1);
+	SpawnGem(2);
+	SpawnGem(2);
 }
 
 void AGameBoard::InitializeInternalBoard()
