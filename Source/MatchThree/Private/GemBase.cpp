@@ -4,6 +4,7 @@
 #include "GemBase.h"
 
 #include "Gem/GemDataAsset.h"
+#include "MatchThree/MatchThree.h"
 
 AGemBase::AGemBase()
 {
@@ -11,6 +12,8 @@ AGemBase::AGemBase()
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMesh->SetupAttachment(GetRootComponent());
+
+	StaticMesh->SetCollisionResponseToChannel(ECC_Gem, ECR_Block);
 
 	bIsMoving = false;
 }

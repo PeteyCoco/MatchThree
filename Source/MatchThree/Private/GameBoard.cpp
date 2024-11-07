@@ -96,22 +96,6 @@ void AGameBoard::InitializeInternalBoard()
 
 void AGameBoard::Tick(float DeltaTime)
 {
-	//UWorld* World = GetWorld();
-	//for (int i = 0; i < BoardWidth; i++)
-	//{
-	//	for (int j = 0; j < BoardHeight; j++)
-	//	{
-	//		FBoardLocation BoardLocation(i, j);
-	//		FVector CellPosition = GetWorldLocation(BoardLocation);
-	//		if (GetGem(BoardLocation))
-	//		{
-	//			DrawDebugPoint(World, CellPosition, 10.f, FColor::Green);
-	//		}
-	//		else
-	//		{
-	//			DrawDebugPoint(World, CellPosition, 10.f, FColor::Black);
-	//		}
-	//	}
-	//}
+
 }
 
