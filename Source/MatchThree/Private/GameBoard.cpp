@@ -35,8 +35,9 @@ void AGameBoard::SpawnGem(int32 Column, EGemType GemType)
 	SpawnLocation += GetActorForwardVector() * (Row + BoardHeight + DistanceSpawnAboveBoard) * CellSpacing;
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(SpawnLocation);
+	SpawnTransform.SetRotation(GetActorRotation().Quaternion());
 
-	AGemBase* GemToPlace = GetWorld()->SpawnActorDeferred<AGemBase>(AGemBase::StaticClass(), SpawnTransform);
+	AGemBase* GemToPlace = GetWorld()->SpawnActorDeferred<AGemBase>(GemActorClass, SpawnTransform);
 	GemToPlace->SetData(GemData[GemType]);
 	GemToPlace->SetActorScale3D(FVector(GemScale, GemScale, GemScale));
 	GemToPlace->FinishSpawning(SpawnTransform);

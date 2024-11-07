@@ -32,6 +32,9 @@ public:
 	// Move the gem to the given world location
 	void MoveTo(const FVector& Destination);
 
+	// Set this gem as selected
+	void SetSelected(bool bInSelected);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
@@ -45,4 +48,10 @@ protected:
 	// Movement speed
 	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")
 	float MovementSpeed = 2000.f;
+
+	// Selected rotation speed
+	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")
+	float RotationSpeed = 180.f;
+
+	bool bIsSelected;
 };

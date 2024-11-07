@@ -103,7 +103,7 @@ protected:
 
 	// Mapping from gem types to their blueprint actors
 	UPROPERTY(EditAnywhere, Category = "Gem Properties")
-	TMap<EGemType, TSubclassOf<AGemBase>> GemActorClasses;
+	TSubclassOf<AGemBase> GemActorClass;
 
 	// Mapping from gem types to their data assets
 	UPROPERTY(EditAnywhere, Category = "Gem Properties")

@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "MatchThreePawn.generated.h"
 
+class AGemBase;
 class ASelectionIndicator;
 class UInputAction;
 class UInputMappingContext;
@@ -41,4 +42,7 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, Category = "Selection")
 	ASelectionIndicator* SelectionIndicator;
+
+	UPROPERTY(VisibleInstanceOnly, Category = "Selection")
+	AGemBase* SelectedGem;
 };

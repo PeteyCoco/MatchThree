@@ -5,6 +5,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GemBase.h"
 #include "MatchThree/MatchThree.h"
 #include "SelectionIndicator.h"
 
@@ -48,14 +49,41 @@ void AMatchThreePawn::Click(const FInputActionValue& Value)
 	{
 		FHitResult HitResult;
 		PlayerController->GetHitResultUnderCursor(ECC_Gem, true, HitResult);
-		if (HitResult.bBlockingHit)
+
+		AGemBase* HitGem = Cast<AGemBase>(HitResult.GetActor());
+
+
+		if (!HitGem && !SelectedGem)
 		{
+			SelectionIndicator->Show(false);
+		}
+		else if (!HitGem && SelectedGem)
+		{
+			SelectedGem->SetSelected(false);
+			SelectedGem = nullptr;
+
+			SelectionIndicator->Show(false);
+		}
+		else if (HitGem && !SelectedGem)
+		{
+			SelectedGem = HitGem;
+			SelectedGem->SetSelected(true);
+
+			SelectionIndicator->SetActorLocation(SelectedGem->GetActorLocation());
 			SelectionIndicator->Show(true);
-			SelectionIndicator->SetActorLocation(HitResult.GetActor()->GetActorLocation());
 		}
 		else
 		{
-			SelectionIndicator->Show(false);
+			if (HitGem != SelectedGem)
+			{
+				SelectedGem->SetSelected(false);
+				SelectedGem = nullptr;
+				SelectedGem = HitGem;
+				SelectedGem->SetSelected(true);
+
+				SelectionIndicator->SetActorLocation(SelectedGem->GetActorLocation());
+				SelectionIndicator->Show(true);
+			}
 		}
 	}
 }

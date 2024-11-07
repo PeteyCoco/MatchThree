@@ -16,6 +16,7 @@ AGemBase::AGemBase()
 	StaticMesh->SetCollisionResponseToChannel(ECC_Gem, ECR_Block);
 
 	bIsMoving = false;
+	bIsSelected = false;
 }
 
 void AGemBase::BeginPlay()
@@ -40,6 +41,14 @@ void AGemBase::Tick(float DeltaTime)
 		// Correct for overshooting target
 		NewDistanceToTarget < CurrentDistanceToTarget ? SetActorLocation(NewLocation) : SetActorLocation(TargetLocation);
 	}
+
+	if (bIsSelected)
+	{
+		FRotator CurrentRotation = GetActorRotation();
+		CurrentRotation.Roll += RotationSpeed * DeltaTime; 
+
+		SetActorRotation(CurrentRotation);
+	}
 }
 
 void AGemBase::SetData(UGemDataAsset* GemData)
@@ -57,6 +66,11 @@ void AGemBase::MoveTo(const FVector& InTargetLocation)
 {
 	bIsMoving = true;
 	TargetLocation = InTargetLocation;
+}
+
+void AGemBase::SetSelected(bool bInSelected)
+{
+	bIsSelected = bInSelected;
 }
 
 
