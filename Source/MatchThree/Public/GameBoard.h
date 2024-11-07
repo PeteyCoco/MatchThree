@@ -13,7 +13,15 @@ class UGemDataAsset;
 UENUM()
 enum class EGemType : uint8
 {
-	Square
+	Capsule,
+	Cone,
+	Icosphere,
+	Sphere,
+	Square,
+	Triangle,
+	Torus,
+
+	MAX
 };
 
 /*
@@ -60,9 +68,12 @@ protected:
 
 public:
 	AGameBoard();
+	
+	UFUNCTION(BlueprintCallable, Category = "Game Board")
+	void ResetBoard();
 
 	UFUNCTION(BlueprintCallable, Category = "Game Board")
-	void SpawnGem(int32 Column);
+	void SpawnGem(int32 Column, EGemType GemType);
 
 	// Get the gem at the given board location
 	UFUNCTION(BlueprintCallable, Category = "Game Board")
@@ -91,12 +102,16 @@ protected:
 	float DistanceSpawnAboveBoard = 5.f;
 
 	// Mapping from gem types to their blueprint actors
-	UPROPERTY(EditAnywhere, Category = "Board Properties")
+	UPROPERTY(EditAnywhere, Category = "Gem Properties")
 	TMap<EGemType, TSubclassOf<AGemBase>> GemActorClasses;
 
 	// Mapping from gem types to their data assets
-	UPROPERTY(EditAnywhere, Category = "Board Properties")
+	UPROPERTY(EditAnywhere, Category = "Gem Properties")
 	TMap<EGemType, UGemDataAsset*> GemData;
+
+	// Scale of the gems
+	UPROPERTY(EditAnywhere, Category = "Gem Properties")
+	float GemScale = 0.9f;
 
 	/* Internal gem locations on the board*/
 	TArray<TArray<AGemBase*>> Gems;

@@ -11,7 +11,22 @@ AGameBoard::AGameBoard()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void AGameBoard::SpawnGem(int32 Column)
+void AGameBoard::ResetBoard()
+{
+	TArray<EGemType> GemTypes;
+	int NumGemTypes = GemData.GetKeys(GemTypes);
+
+	for (int i = 0; i < BoardWidth; i++)
+	{
+		for (int j = 0; j < BoardHeight; j++)
+		{
+			EGemType GemType = GemTypes[FMath::RandRange(0, NumGemTypes - 1)];
+			SpawnGem(i, GemType);
+		}
+	}
+}
+
+void AGameBoard::SpawnGem(int32 Column, EGemType GemType)
 {
 	// Spawn at above board
 	const int Row = GetColumnHeight(Column);
@@ -22,7 +37,8 @@ void AGameBoard::SpawnGem(int32 Column)
 	SpawnTransform.SetLocation(SpawnLocation);
 
 	AGemBase* GemToPlace = GetWorld()->SpawnActorDeferred<AGemBase>(AGemBase::StaticClass(), SpawnTransform);
-	GemToPlace->SetData(GemData[EGemType::Square]);
+	GemToPlace->SetData(GemData[GemType]);
+	GemToPlace->SetActorScale3D(FVector(GemScale, GemScale, GemScale));
 	GemToPlace->FinishSpawning(SpawnTransform);
 
 	// Set the gem on the board
@@ -60,11 +76,7 @@ void AGameBoard::BeginPlay()
 
 	InitializeInternalBoard();
 
-	SpawnGem(0);
-	SpawnGem(0);
-	SpawnGem(1);
-	SpawnGem(2);
-	SpawnGem(2);
+	ResetBoard();
 }
 
 void AGameBoard::InitializeInternalBoard()
@@ -84,22 +96,22 @@ void AGameBoard::InitializeInternalBoard()
 
 void AGameBoard::Tick(float DeltaTime)
 {
-	UWorld* World = GetWorld();
-	for (int i = 0; i < BoardWidth; i++)
-	{
-		for (int j = 0; j < BoardHeight; j++)
-		{
-			FBoardLocation BoardLocation(i, j);
-			FVector CellPosition = GetWorldLocation(BoardLocation);
-			if (GetGem(BoardLocation))
-			{
-				DrawDebugPoint(World, CellPosition, 10.f, FColor::Green);
-			}
-			else
-			{
-				DrawDebugPoint(World, CellPosition, 10.f, FColor::Black);
-			}
-		}
-	}
+	//UWorld* World = GetWorld();
+	//for (int i = 0; i < BoardWidth; i++)
+	//{
+	//	for (int j = 0; j < BoardHeight; j++)
+	//	{
+	//		FBoardLocation BoardLocation(i, j);
+	//		FVector CellPosition = GetWorldLocation(BoardLocation);
+	//		if (GetGem(BoardLocation))
+	//		{
+	//			DrawDebugPoint(World, CellPosition, 10.f, FColor::Green);
+	//		}
+	//		else
+	//		{
+	//			DrawDebugPoint(World, CellPosition, 10.f, FColor::Black);
+	//		}
+	//	}
+	//}
 }
 
