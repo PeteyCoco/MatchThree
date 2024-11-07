@@ -6,6 +6,9 @@
 #include "GameFramework/Pawn.h"
 #include "MatchThreePawn.generated.h"
 
+class UInputAction;
+class UInputMappingContext;
+
 UCLASS()
 class MATCHTHREE_API AMatchThreePawn : public APawn
 {
@@ -17,6 +20,17 @@ protected:
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	//~ End APawn interface
+
+protected:
+	/** MappingContext for player input. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputMappingContext* InputMapping;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* ClickAction;
+
+	UFUNCTION()
+	void Click(const FInputActionValue& Value);
 
 public:
 	AMatchThreePawn();
