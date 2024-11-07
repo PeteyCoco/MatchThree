@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "GemBase.generated.h"
 
+class UGemDataAsset;
+
 /*
 *	Base class for gems on the game board
 */
@@ -21,6 +23,9 @@ protected:
 
 public:	
 	AGemBase();
+
+	// Set the data of this gem actor
+	void SetData(UGemDataAsset* GemData);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")

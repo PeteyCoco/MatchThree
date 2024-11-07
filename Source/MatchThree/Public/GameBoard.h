@@ -7,6 +7,8 @@
 #include "GameBoard.generated.h"
 
 class AGemBase;
+class UGemDataAsset;
+
 
 UENUM(BlueprintType)
 enum class EGemType : uint8
@@ -49,4 +51,8 @@ protected:
 	// Mapping from gem types to their blueprint actors
 	UPROPERTY(EditAnywhere, Category = "Board Properties")
 	TMap<EGemType, TSubclassOf<AGemBase>> GemActorClasses;
+
+	// Mapping from gem types to their data assets
+	UPROPERTY(EditAnywhere, Category = "Board Properties")
+	TMap<EGemType, UGemDataAsset*> GemData;
 };

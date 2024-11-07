@@ -15,7 +15,10 @@ void AGameBoard::PlaceGem()
 {
 	FTransform PlaceLocation;
 	PlaceLocation.SetLocation(GetActorLocation());
-	GetWorld()->SpawnActor<AGemBase>(GemActorClasses[EGemType::Square], PlaceLocation);
+
+	AGemBase* GemToPlace = GetWorld()->SpawnActorDeferred<AGemBase>(AGemBase::StaticClass(), PlaceLocation);
+	GemToPlace->SetData(GemData[EGemType::Square]);
+	GemToPlace->FinishSpawning(PlaceLocation);
 }
 
 void AGameBoard::BeginPlay()
