@@ -11,21 +11,50 @@ AGemBase::AGemBase()
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMesh->SetupAttachment(GetRootComponent());
-}
 
-void AGemBase::SetData(UGemDataAsset* GemData)
-{
-	if (!GemData) 
-	{
-		UE_LOG(LogTemp, Error, TEXT("Invalid GemData pointer!"));
-	}
-
-	StaticMesh->SetStaticMesh(GemData->Mesh);
-	StaticMesh->SetMaterial(0, GemData->Material);
+	bIsMoving = false;
 }
 
 void AGemBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
+
+void AGemBase::Tick(float DeltaTime)
+{
+	if (bIsMoving)
+	{
+		const FVector CurrentLocation = GetActorLocation();
+		const float CurrentDistanceToTarget = (CurrentLocation - TargetLocation).Size();
+		if (CurrentDistanceToTarget < 1.f)
+		{
+			bIsMoving = false;
+		}
+
+		const FVector NewLocation = FMath::VInterpConstantTo(GetActorLocation(), TargetLocation, DeltaTime, MovementSpeed);
+		const float NewDistanceToTarget = (NewLocation - TargetLocation).Size();
+
+		// Correct for overshooting
+		NewDistanceToTarget < CurrentDistanceToTarget ? SetActorLocation(NewLocation) : SetActorLocation(TargetLocation);
+	}
+}
+
+void AGemBase::SetData(UGemDataAsset* GemData)
+{
+	if (!GemData) 
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid GemDataAsset pointer!"));
+	}
+
+	StaticMesh->SetStaticMesh(GemData->Mesh);
+	StaticMesh->SetMaterial(0, GemData->Material);
+}
+
+void AGemBase::MoveTo(const FVector& InTargetLocation)
+{
+	bIsMoving = true;
+	TargetLocation = InTargetLocation;
+}
+
+
 

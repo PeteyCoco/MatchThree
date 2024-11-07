@@ -26,6 +26,8 @@ void AGameBoard::SpawnGem(int32 Column)
 
 	// Set the gem on the board
 	Gems[Column][0] = GemToPlace;
+	GemToPlace->MoveTo(GetWorldLocation({ Column, 0 }));
+
 }
 
 AGemBase* AGameBoard::GetGem(const FBoardLocation& InLocation) const
@@ -81,19 +83,6 @@ void AGameBoard::Tick(float DeltaTime)
 			else
 			{
 				DrawDebugPoint(World, CellPosition, 10.f, FColor::Black);
-			}
-		}
-	}
-
-	// Update the gem locations
-	for (int i = 0; i < BoardWidth; i++)
-	{
-		for (int j = 0; j < BoardHeight; j++)
-		{
-			if (AGemBase* Gem = GetGem({ i,j }))
-			{
-				const FVector NewLocation = FMath::VInterpConstantTo(Gem->GetActorLocation(), GetWorldLocation({ i,j }), DeltaTime, 10.f * CellSpacing);
-				Gem->SetActorLocation(NewLocation);
 			}
 		}
 	}
