@@ -5,6 +5,8 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "MatchThree/MatchThree.h"
+#include "SelectionIndicator.h"
 
 AMatchThreePawn::AMatchThreePawn()
 {
@@ -14,6 +16,12 @@ AMatchThreePawn::AMatchThreePawn()
 void AMatchThreePawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (SelectionIndicatorClass)
+	{
+		SelectionIndicator = GetWorld()->SpawnActor<ASelectionIndicator>(SelectionIndicatorClass);
+		SelectionIndicator->Show(false);
+	}
 }
 
 void AMatchThreePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -28,10 +36,26 @@ void AMatchThreePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	Subsystem->AddMappingContext(InputMapping, 0);
 
 	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-	Input->BindAction(ClickAction, ETriggerEvent::Triggered, this, &AMatchThreePawn::Click);
+	Input->BindAction(ClickAction, ETriggerEvent::Completed, this, &AMatchThreePawn::Click);
 }
 
 void AMatchThreePawn::Click(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Click!"));
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController && SelectionIndicator)
+	{
+		FHitResult HitResult;
+		PlayerController->GetHitResultUnderCursor(ECC_Gem, true, HitResult);
+		if (HitResult.bBlockingHit)
+		{
+			SelectionIndicator->Show(true);
+			SelectionIndicator->SetActorLocation(HitResult.GetActor()->GetActorLocation());
+		}
+		else
+		{
+			SelectionIndicator->Show(false);
+		}
+	}
 }

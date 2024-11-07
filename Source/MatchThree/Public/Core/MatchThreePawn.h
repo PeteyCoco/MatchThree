@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "MatchThreePawn.generated.h"
 
+class ASelectionIndicator;
 class UInputAction;
 class UInputMappingContext;
 
@@ -21,6 +22,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	//~ End APawn interface
 
+public:
+	AMatchThreePawn();
+
 protected:
 	/** MappingContext for player input. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
@@ -32,7 +36,9 @@ protected:
 	UFUNCTION()
 	void Click(const FInputActionValue& Value);
 
-public:
-	AMatchThreePawn();
+	UPROPERTY(EditDefaultsOnly, Category = "Selection")
+	TSubclassOf<ASelectionIndicator> SelectionIndicatorClass;
 
+	UPROPERTY(VisibleInstanceOnly, Category = "Selection")
+	ASelectionIndicator* SelectionIndicator;
 };
