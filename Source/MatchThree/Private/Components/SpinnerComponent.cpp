@@ -25,8 +25,9 @@ void USpinnerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	switch (State)
 	{
 	case ESpinnerState::Spinning:
-		CurrentRotation.Roll += RotationSpeed * DeltaTime;
-		GetOwner()->SetActorRotation(CurrentRotation);
+		//CurrentRotation += RotationSpeed * DeltaTime;
+		//GetOwner()->SetActorRotation(CurrentRotation);
+		GetOwner()->AddActorLocalRotation(FQuat(RotationSpeed * DeltaTime));
 		break;
 	case ESpinnerState::Stopping:
 		GetOwner()->SetActorRotation(StartRotator);

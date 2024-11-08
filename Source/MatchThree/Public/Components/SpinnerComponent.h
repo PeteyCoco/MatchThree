@@ -42,7 +42,7 @@ public:
 protected:
 	// Selected rotation speed
 	UPROPERTY(EditDefaultsOnly, Category = "Spinner Properties")
-	float RotationSpeed = 180.f;
+	FRotator RotationSpeed = FRotator(11.f, 29.f, 31.f);
 
 	// The state of the spinner
 	UPROPERTY(VisibleInstanceOnly, Category = "Spinner Properties")
