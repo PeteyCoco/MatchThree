@@ -38,6 +38,9 @@ protected:
 	UFUNCTION()
 	void Click(const FInputActionValue& Value);
 
+	void HandleGemClicked(AGemBase* HitGem);
+
+
 	UPROPERTY(EditDefaultsOnly, Category = "Selection")
 	TSubclassOf<ASelectionIndicator> SelectionIndicatorClass;
 

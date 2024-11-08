@@ -50,44 +50,37 @@ void AMatchThreePawn::Click(const FInputActionValue& Value)
 		FHitResult HitResult;
 		PlayerController->GetHitResultUnderCursor(ECC_Gem, true, HitResult);
 
-		AGemBase* HitGem = Cast<AGemBase>(HitResult.GetActor());
-
-
-		if (!HitGem)
+		if (AGemBase* HitGem = Cast<AGemBase>(HitResult.GetActor()))
 		{
-			// Nothing hit
-			ClearSelection();
+			HandleGemClicked(HitGem);
 		}
-		else if (!SelectedGem)
-		{
-			// Gem hit, nothing previously selected
-			SelectedGem = HitGem;
-			SelectedGem->SetSelected(true);
+	}
+}
 
-			SelectionIndicator->SetActorLocation(SelectedGem->GetActorLocation());
-			SelectionIndicator->Show(true);
-		}
-		else
+void AMatchThreePawn::HandleGemClicked(AGemBase* HitGem)
+{
+	if (!HitGem)
+	{
+		ClearSelection();
+	}
+	else if (!SelectedGem)
+	{
+		SelectGem(HitGem);
+	}
+	else if (HitGem != SelectedGem)
+	{
+		GameBoard = !GameBoard ? GetGameBoard() : GameBoard;
+		if (GameBoard)
 		{
-			// Gem hit, something previously selected
-			if (HitGem != SelectedGem)
+			if (GameBoard->CanSwapGems(SelectedGem, HitGem))
 			{
-				GameBoard = !GameBoard ? GetGameBoard() : GameBoard;
-				if (GameBoard)
-				{
-					if (GameBoard->CanSwapGems(SelectedGem, HitGem))
-					{
-						GameBoard->SwapGems(SelectedGem, HitGem);
-						ClearSelection();
-					}
-					else
-					{
-						SelectedGem->SetSelected(false);
-						SelectedGem = HitGem;
-						SelectionIndicator->SetActorLocation(SelectedGem->GetActorLocation());
-					}
-				}
-
+				GameBoard->SwapGems(SelectedGem, HitGem);
+				ClearSelection();
+			}
+			else
+			{
+				ClearSelection();
+				SelectGem(HitGem);
 			}
 		}
 	}
@@ -110,5 +103,10 @@ void AMatchThreePawn::ClearSelection()
 
 void AMatchThreePawn::SelectGem(AGemBase* NewGem)
 {
+	if (!NewGem) return;
 
+	SelectedGem = NewGem;
+	NewGem->SetSelected(true);
+	SelectionIndicator->SetActorLocation(NewGem->GetActorLocation());
+	SelectionIndicator->Show(true);
 }
