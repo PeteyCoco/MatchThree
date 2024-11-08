@@ -55,6 +55,7 @@ void AGemBase::SetData(UGemDataAsset* GemData)
 
 	StaticMesh->SetStaticMesh(GemData->Mesh);
 	StaticMesh->SetMaterial(0, GemData->Material);
+	Type = GemData->Type; 
 }
 
 void AGemBase::MoveTo(const FVector& InTargetLocation)

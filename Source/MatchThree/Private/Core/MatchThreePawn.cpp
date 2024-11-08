@@ -84,6 +84,10 @@ void AMatchThreePawn::HandleGemClicked(AGemBase* HitGem)
 			}
 		}
 	}
+	else if (HitGem == SelectedGem)
+	{
+		ClearSelection();
+	}
 }
 
 AGameBoard* AMatchThreePawn::GetGameBoard()

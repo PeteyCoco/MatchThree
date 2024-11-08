@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameBoard.h"
 #include "GemBase.generated.h"
 
 class UGemDataAsset;
@@ -36,12 +37,18 @@ public:
 	// Set this gem as selected
 	void SetSelected(bool bInSelected);
 
+	// Get the gem type
+	EGemType GetType() const { return Type; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")
 	TObjectPtr<USpinnerComponent> SpinnerComponent;
+
+	UPROPERTY(VisibleInstanceOnly, Category = "Gem Properties")
+	EGemType Type;
 
 	// True if this actor is moving
 	bool bIsMoving;

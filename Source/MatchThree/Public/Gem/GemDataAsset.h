@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "GameBoard.h"
 #include "GemDataAsset.generated.h"
 
 /**
@@ -20,4 +21,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Gem Data")
 	TObjectPtr<UMaterialInstance> Material;
+
+	UPROPERTY(EditAnywhere, Category = "Gem Data")
+	EGemType Type;
 };
