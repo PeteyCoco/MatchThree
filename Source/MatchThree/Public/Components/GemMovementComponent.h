@@ -6,6 +6,8 @@
 #include "GameFramework/MovementComponent.h"
 #include "GemMovementComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMoveToCompleteSignature);
+
 /**
  * 
  */
@@ -23,6 +25,9 @@ public:
 	// Move towards the new location with constant acceleration
 	void MoveTo(const FVector& NewLocation);
 
+	// Delegate to broadcast on MoveTo complete
+	FOnMoveToCompleteSignature OnMoveToCompleteDelegate;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Gem Movement")
 	float MaxSpeed = 2000.f;
@@ -33,4 +38,6 @@ protected:
 	bool bIsMoving = false;
 
 	FVector TargetLocation;
+
+	void FinishMoveTo();
 };

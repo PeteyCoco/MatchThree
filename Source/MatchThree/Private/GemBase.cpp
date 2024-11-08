@@ -47,6 +47,7 @@ void AGemBase::SetData(UGemDataAsset* GemData)
 
 void AGemBase::MoveTo(const FVector& NewLocation)
 {
+	MovementComponent->OnMoveToCompleteDelegate.AddUniqueDynamic(this, &AGemBase::HandleMoveToComplete);
 	MovementComponent->MoveTo(NewLocation);
 }
 
@@ -54,6 +55,12 @@ void AGemBase::SetSelected(bool bInSelected)
 {
 	bIsSelected = bInSelected;
 	bIsSelected ? SpinnerComponent->Start() : SpinnerComponent->Stop();
+}
+
+void AGemBase::HandleMoveToComplete()
+{
+	OnMoveToCompleteDelegate.Broadcast();
+	OnMoveToCompleteDelegate.Clear();
 }
 
 

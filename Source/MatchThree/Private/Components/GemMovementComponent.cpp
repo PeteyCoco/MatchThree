@@ -14,9 +14,7 @@ void UGemMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
         if (CurrentDistanceToTarget < 1.f)
         {
-            bIsMoving = false;
-            GetOwner()->SetActorLocation(TargetLocation);
-            Velocity = FVector::ZeroVector;
+            FinishMoveTo();
             return;
         }
 
@@ -29,9 +27,7 @@ void UGemMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
         const float NewDistanceToTarget = FVector::DistSquared(NewLocation, TargetLocation);
         if (NewDistanceToTarget > CurrentDistanceToTarget)
         {
-            bIsMoving = false;
-            GetOwner()->SetActorLocation(TargetLocation);
-            Velocity = FVector::ZeroVector;
+            FinishMoveTo();
         }
         else
         {
@@ -44,4 +40,13 @@ void UGemMovementComponent::MoveTo(const FVector& NewLocation)
 {
 	bIsMoving = true;
 	TargetLocation = NewLocation;
+}
+
+void UGemMovementComponent::FinishMoveTo()
+{
+    bIsMoving = false;
+    GetOwner()->SetActorLocation(TargetLocation);
+    Velocity = FVector::ZeroVector;
+    OnMoveToCompleteDelegate.Broadcast();
+    OnMoveToCompleteDelegate.Clear();
 }

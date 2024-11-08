@@ -128,4 +128,7 @@ protected:
 
 	/* Internal gem locations on the board*/
 	TArray<TArray<AGemBase*>> Gems;
+
+	UFUNCTION()
+	void HandleSwapComplete();
 };

@@ -123,6 +123,7 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 	Gems[GemABoardLocation.X][GemABoardLocation.Y] = GemB;
 	Gems[GemBBoardLocation.X][GemBBoardLocation.Y] = GemA;
 
+	GemA->OnMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::HandleSwapComplete);
 	GemA->MoveTo(GetWorldLocation(GemBBoardLocation));
 	GemB->MoveTo(GetWorldLocation(GemABoardLocation));
 }
@@ -215,6 +216,11 @@ void AGameBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray)
 		UE_LOG(LogTemp, Warning, TEXT("Match of length %d along the vertical"), Matches.Num());
 		OutArray.Append(Matches);
 	}
+}
+
+void AGameBoard::HandleSwapComplete()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Swap complete!"));
 }
 
 void AGameBoard::BeginPlay()

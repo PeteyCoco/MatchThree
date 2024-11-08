@@ -73,13 +73,13 @@ void AMatchThreePawn::HandleGemClicked(AGemBase* HitGem)
 		if (GameBoard && GameBoard->CanSwapGems(SelectedGem, HitGem))
 		{
 			GameBoard->SwapGems(SelectedGem, HitGem);
-			TArray<AGemBase*> GemsToDestroy;
-			GameBoard->GetMatches(SelectedGem, GemsToDestroy);
-			GameBoard->GetMatches(HitGem, GemsToDestroy);
-			for (auto Gem : GemsToDestroy)
-			{
-				Gem->Destroy();
-			}
+			//TArray<AGemBase*> GemsToDestroy;
+			//GameBoard->GetMatches(SelectedGem, GemsToDestroy);
+			//GameBoard->GetMatches(HitGem, GemsToDestroy);
+			//for (auto Gem : GemsToDestroy)
+			//{
+			//	Gem->Destroy();
+			//}
 			ClearSelection();
 		}
 		else

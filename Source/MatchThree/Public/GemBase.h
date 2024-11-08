@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/GemMovementComponent.h"
 #include "GameFramework/Actor.h"
 #include "GameBoard.h"
 #include "GemBase.generated.h"
@@ -35,6 +36,9 @@ public:
 	// Move the gem to the given world location
 	void MoveTo(const FVector& NewLocation);
 
+	// Delegate to broadcast on MoveTo complete
+	FOnMoveToCompleteSignature OnMoveToCompleteDelegate;
+
 	// Set this gem as selected
 	void SetSelected(bool bInSelected);
 
@@ -55,4 +59,7 @@ protected:
 	EGemType Type;
 
 	bool bIsSelected;
+
+	UFUNCTION()
+	void HandleMoveToComplete();
 };
