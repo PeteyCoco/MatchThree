@@ -127,7 +127,7 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 	GemB->MoveTo(GetWorldLocation(GemABoardLocation));
 }
 
-void AGameBoard::CheckMatches(AGemBase* Gem)
+void AGameBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray)
 {
 	if (!Gem) return;
 
@@ -167,14 +167,11 @@ void AGameBoard::CheckMatches(AGemBase* Gem)
 		}
 	}
 
-	// Check that at least 3 matches occured and destroy
+	// Check that at least 3 matches occured
 	if (Matches.Num() >= 3)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Match of length %d along the horizontal"), Matches.Num());
-		for (AGemBase* MatchingGem : Matches)
-		{
-			MatchingGem->Destroy();
-		}
+		OutArray.Append(Matches);
 		return;
 	}
 
@@ -212,14 +209,11 @@ void AGameBoard::CheckMatches(AGemBase* Gem)
 		}
 	}
 
-	// Check that at least 3 matches occured and destroy
+	// Check that at least 3 matches occured
 	if (Matches.Num() >= 3)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Match of length %d along the vertical"), Matches.Num());
-		for (AGemBase* MatchingGem : Matches)
-		{
-			MatchingGem->Destroy();
-		}
+		OutArray.Append(Matches);
 	}
 }
 
