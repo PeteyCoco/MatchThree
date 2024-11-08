@@ -53,19 +53,14 @@ void AMatchThreePawn::Click(const FInputActionValue& Value)
 		AGemBase* HitGem = Cast<AGemBase>(HitResult.GetActor());
 
 
-		if (!HitGem && !SelectedGem)
+		if (!HitGem)
 		{
-			SelectionIndicator->Show(false);
+			// Nothing hit
+			ClearSelection();
 		}
-		else if (!HitGem && SelectedGem)
+		else if (!SelectedGem)
 		{
-			SelectedGem->SetSelected(false);
-			SelectedGem = nullptr;
-
-			SelectionIndicator->Show(false);
-		}
-		else if (HitGem && !SelectedGem)
-		{
+			// Gem hit, nothing previously selected
 			SelectedGem = HitGem;
 			SelectedGem->SetSelected(true);
 
@@ -74,6 +69,7 @@ void AMatchThreePawn::Click(const FInputActionValue& Value)
 		}
 		else
 		{
+			// Gem hit, something previously selected
 			if (HitGem != SelectedGem)
 			{
 				GameBoard = !GameBoard ? GetGameBoard() : GameBoard;
@@ -82,9 +78,7 @@ void AMatchThreePawn::Click(const FInputActionValue& Value)
 					if (GameBoard->CanSwapGems(SelectedGem, HitGem))
 					{
 						GameBoard->SwapGems(SelectedGem, HitGem);
-						SelectedGem->SetSelected(false);
-						SelectedGem = nullptr;
-						SelectionIndicator->Show(false);
+						ClearSelection();
 					}
 					else
 					{
@@ -102,4 +96,19 @@ void AMatchThreePawn::Click(const FInputActionValue& Value)
 AGameBoard* AMatchThreePawn::GetGameBoard()
 {
 	return Cast<AGameBoard>(UGameplayStatics::GetActorOfClass(this, AGameBoard::StaticClass()));
+}
+
+void AMatchThreePawn::ClearSelection()
+{
+	if (SelectedGem)
+	{
+		SelectedGem->SetSelected(false);
+		SelectedGem = nullptr;
+	}
+	SelectionIndicator->Show(false);
+}
+
+void AMatchThreePawn::SelectGem(AGemBase* NewGem)
+{
+
 }

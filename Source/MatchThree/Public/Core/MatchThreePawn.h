@@ -53,4 +53,7 @@ protected:
 private:
 
 	AGameBoard* GetGameBoard();
+
+	void ClearSelection();
+	void SelectGem(AGemBase* Gem);
 };
