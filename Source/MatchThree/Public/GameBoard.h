@@ -96,6 +96,9 @@ public:
 	// Swap the gems' position on the board
 	void SwapGems(AGemBase* GemA, AGemBase* GemB);
 
+	// Check for matches centered on the given gem
+	void CheckMatches(AGemBase* Gem);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	int32 BoardWidth = 8;

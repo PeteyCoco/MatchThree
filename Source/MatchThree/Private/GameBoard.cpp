@@ -127,6 +127,102 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 	GemB->MoveTo(GetWorldLocation(GemABoardLocation));
 }
 
+void AGameBoard::CheckMatches(AGemBase* Gem)
+{
+	if (!Gem) return;
+
+	FBoardLocation GemBoardLocation = GetBoardLocation(Gem);
+
+	const int XMin = FMath::Max(0, GemBoardLocation.X - 2);
+	const int XMax = FMath::Min(GemBoardLocation.X + 2, BoardWidth - 1);
+
+	// Check horizontal matches
+	TArray<AGemBase*> Matches;
+	Matches.Add(Gem);
+
+	// Grow the left
+	for (int i = GemBoardLocation.X - 1; XMin <= i; i--)
+	{
+		AGemBase* CandidateGem = Gems[i][GemBoardLocation.Y];
+		if (CandidateGem->GetType() == Gem->GetType())
+		{
+			Matches.Add(CandidateGem);
+		}
+		else
+		{
+			break;
+		}
+	}
+	// Grow the right
+	for (int i = GemBoardLocation.X + 1; i <= XMax; i++)
+	{
+		AGemBase* CandidateGem = Gems[i][GemBoardLocation.Y];
+		if (CandidateGem->GetType() == Gem->GetType())
+		{
+			Matches.Add(CandidateGem);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	// Check that at least 3 matches occured and destroy
+	if (Matches.Num() >= 3)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Match of length %d along the horizontal"), Matches.Num());
+		for (AGemBase* MatchingGem : Matches)
+		{
+			MatchingGem->Destroy();
+		}
+		return;
+	}
+
+	// Check vertical matches
+	const int YMin = FMath::Max(0, GemBoardLocation.Y - 2);
+	const int YMax = FMath::Min(GemBoardLocation.Y + 2, BoardHeight - 1);
+
+	Matches.Empty();
+	Matches.Add(Gem);
+
+	// Grow the bottom
+	for (int i = GemBoardLocation.Y - 1; YMin <= i; i--)
+	{
+		AGemBase* CandidateGem = Gems[GemBoardLocation.X][i];
+		if (CandidateGem->GetType() == Gem->GetType())
+		{
+			Matches.Add(CandidateGem);
+		}
+		else
+		{
+			break;
+		}
+	}
+	// Grow the top
+	for (int i = GemBoardLocation.Y + 1; i <= YMax; i++)
+	{
+		AGemBase* CandidateGem = Gems[GemBoardLocation.X][i];
+		if (CandidateGem->GetType() == Gem->GetType())
+		{
+			Matches.Add(CandidateGem);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	// Check that at least 3 matches occured and destroy
+	if (Matches.Num() >= 3)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Match of length %d along the vertical"), Matches.Num());
+		for (AGemBase* MatchingGem : Matches)
+		{
+			MatchingGem->Destroy();
+		}
+	}
+}
+
 void AGameBoard::BeginPlay()
 {
 	Super::BeginPlay();

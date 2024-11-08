@@ -70,18 +70,16 @@ void AMatchThreePawn::HandleGemClicked(AGemBase* HitGem)
 	else if (HitGem != SelectedGem)
 	{
 		GameBoard = !GameBoard ? GetGameBoard() : GameBoard;
-		if (GameBoard)
+		if (GameBoard && GameBoard->CanSwapGems(SelectedGem, HitGem))
 		{
-			if (GameBoard->CanSwapGems(SelectedGem, HitGem))
-			{
-				GameBoard->SwapGems(SelectedGem, HitGem);
-				ClearSelection();
-			}
-			else
-			{
-				ClearSelection();
-				SelectGem(HitGem);
-			}
+			GameBoard->SwapGems(SelectedGem, HitGem);
+			GameBoard->CheckMatches(SelectedGem);
+			ClearSelection();
+		}
+		else
+		{
+			ClearSelection();
+			SelectGem(HitGem);
 		}
 	}
 	else if (HitGem == SelectedGem)
