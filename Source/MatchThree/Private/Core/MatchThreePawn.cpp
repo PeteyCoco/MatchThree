@@ -79,11 +79,21 @@ void AMatchThreePawn::Click(const FInputActionValue& Value)
 				GameBoard = !GameBoard ? GetGameBoard() : GameBoard;
 				if (GameBoard)
 				{
-					GameBoard->SwapGems(SelectedGem, HitGem);
+					if (GameBoard->CanSwapGems(SelectedGem, HitGem))
+					{
+						GameBoard->SwapGems(SelectedGem, HitGem);
+						SelectedGem->SetSelected(false);
+						SelectedGem = nullptr;
+						SelectionIndicator->Show(false);
+					}
+					else
+					{
+						SelectedGem->SetSelected(false);
+						SelectedGem = HitGem;
+						SelectionIndicator->SetActorLocation(SelectedGem->GetActorLocation());
+					}
 				}
-				SelectedGem->SetSelected(false);
-				SelectedGem = nullptr;
-				SelectionIndicator->Show(false);
+
 			}
 		}
 	}

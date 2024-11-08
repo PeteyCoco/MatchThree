@@ -90,6 +90,9 @@ public:
 	// Get the number of gems at the bottom of the column
 	int32 GetColumnHeight(int32 Column) const;
 
+	// Return true if the given gems can be swapped
+	bool CanSwapGems(AGemBase* GemA, AGemBase* GemB) const;
+
 	// Swap the gems' position on the board
 	void SwapGems(AGemBase* GemA, AGemBase* GemB);
 

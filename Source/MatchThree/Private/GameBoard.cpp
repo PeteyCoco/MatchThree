@@ -95,6 +95,24 @@ int32 AGameBoard::GetColumnHeight(int32 Column) const
 	return Height;
 }
 
+bool AGameBoard::CanSwapGems(AGemBase* GemA, AGemBase* GemB) const
+{
+	if (GemA && GemB)
+	{
+		const FBoardLocation GemABoardLocation = GetBoardLocation(GemA);
+		const FBoardLocation GemBBoardLocation = GetBoardLocation(GemB);
+
+		const int XDiff =  FMath::Abs(GemABoardLocation.X - GemBBoardLocation.X);
+		const int YDiff = FMath::Abs(GemABoardLocation.Y - GemBBoardLocation.Y);
+
+		const bool bXNeighbours = XDiff == 1 && YDiff == 0;
+		const bool bYNeighbours = XDiff == 0 && YDiff == 1;
+
+		return bXNeighbours || bYNeighbours;
+	}
+	return false;
+}
+
 void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 {
 	if (!GemA || !GemB) return;
