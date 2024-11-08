@@ -8,6 +8,7 @@
 #include "GemBase.generated.h"
 
 class UGemDataAsset;
+class UGemMovementComponent;
 class USpinnerComponent;
 
 /*
@@ -32,7 +33,7 @@ public:
 	void SetData(UGemDataAsset* GemData);
 
 	// Move the gem to the given world location
-	void MoveTo(const FVector& Destination);
+	void MoveTo(const FVector& NewLocation);
 
 	// Set this gem as selected
 	void SetSelected(bool bInSelected);
@@ -47,18 +48,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")
 	TObjectPtr<USpinnerComponent> SpinnerComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")
+	TObjectPtr<UGemMovementComponent> MovementComponent;
+
 	UPROPERTY(VisibleInstanceOnly, Category = "Gem Properties")
 	EGemType Type;
-
-	// True if this actor is moving
-	bool bIsMoving;
-
-	// Location to move to
-	FVector TargetLocation;
-
-	// Movement speed
-	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")
-	float MovementSpeed = 2000.f;
 
 	bool bIsSelected;
 };

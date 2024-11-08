@@ -4,6 +4,7 @@
 #include "GemBase.h"
 
 #include "Components/SpinnerComponent.h"
+#include "Components/GemMovementComponent.h"
 #include "Gem/GemDataAsset.h"
 #include "MatchThree/MatchThree.h"
 
@@ -18,7 +19,8 @@ AGemBase::AGemBase()
 
 	SpinnerComponent = CreateDefaultSubobject<USpinnerComponent>("SpinnerComponent");
 
-	bIsMoving = false;
+	MovementComponent = CreateDefaultSubobject<UGemMovementComponent>("MovementComponent");
+
 	bIsSelected = false;
 }
 
@@ -29,21 +31,6 @@ void AGemBase::BeginPlay()
 
 void AGemBase::Tick(float DeltaTime)
 {
-	if (bIsMoving)
-	{
-		const FVector CurrentLocation = GetActorLocation();
-		const float CurrentDistanceToTarget = (CurrentLocation - TargetLocation).Size();
-		if (CurrentDistanceToTarget < 1.f)
-		{
-			bIsMoving = false;
-		}
-
-		const FVector NewLocation = FMath::VInterpConstantTo(GetActorLocation(), TargetLocation, DeltaTime, MovementSpeed);
-		const float NewDistanceToTarget = (NewLocation - TargetLocation).Size();
-
-		// Correct for overshooting target
-		NewDistanceToTarget < CurrentDistanceToTarget ? SetActorLocation(NewLocation) : SetActorLocation(TargetLocation);
-	}
 }
 
 void AGemBase::SetData(UGemDataAsset* GemData)
@@ -58,10 +45,9 @@ void AGemBase::SetData(UGemDataAsset* GemData)
 	Type = GemData->Type; 
 }
 
-void AGemBase::MoveTo(const FVector& InTargetLocation)
+void AGemBase::MoveTo(const FVector& NewLocation)
 {
-	bIsMoving = true;
-	TargetLocation = InTargetLocation;
+	MovementComponent->MoveTo(NewLocation);
 }
 
 void AGemBase::SetSelected(bool bInSelected)
