@@ -7,6 +7,7 @@
 #include "GemBase.generated.h"
 
 class UGemDataAsset;
+class USpinnerComponent;
 
 /*
 *	Base class for gems on the game board
@@ -39,6 +40,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")
+	TObjectPtr<USpinnerComponent> SpinnerComponent;
+
 	// True if this actor is moving
 	bool bIsMoving;
 
@@ -48,10 +52,6 @@ protected:
 	// Movement speed
 	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")
 	float MovementSpeed = 2000.f;
-
-	// Selected rotation speed
-	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")
-	float RotationSpeed = 180.f;
 
 	bool bIsSelected;
 };
