@@ -53,6 +53,30 @@ AGemBase* AGameBoard::GetGem(const FBoardLocation& InLocation) const
 	return Gems[InLocation.X][InLocation.Y];
 }
 
+FBoardLocation AGameBoard::GetBoardLocation(AGemBase* Gem) const
+{
+	if (!Gem)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Gem is nullptr. Returning default location."));
+		return FBoardLocation();
+	}
+	else
+	{
+		for (int32 ColIndex = 0; ColIndex < BoardWidth; ++ColIndex)
+		{
+			for (int32 RowIndex = 0; RowIndex < BoardHeight; ++RowIndex)
+			{
+				if (Gems[ColIndex][RowIndex] == Gem)
+				{
+					return FBoardLocation(ColIndex, RowIndex);
+				}
+			}
+		}
+	}
+	UE_LOG(LogTemp, Error, TEXT("Gem [&s] does not exist on the board. Returning default location."), Gem->GetFName());
+	return FBoardLocation();
+}
+
 FVector AGameBoard::GetWorldLocation(const FBoardLocation& InLocation) const
 {
 	FVector WorldPosition = GetActorLocation();
@@ -69,6 +93,20 @@ int32 AGameBoard::GetColumnHeight(int32 Column) const
 		++Height;
 	}
 	return Height;
+}
+
+void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
+{
+	if (!GemA || !GemB) return;
+
+	FBoardLocation GemABoardLocation = GetBoardLocation(GemA);
+	FBoardLocation GemBBoardLocation = GetBoardLocation(GemB);
+
+	Gems[GemABoardLocation.X][GemABoardLocation.Y] = GemB;
+	Gems[GemBBoardLocation.X][GemBBoardLocation.Y] = GemA;
+
+	GemA->MoveTo(GetWorldLocation(GemBBoardLocation));
+	GemB->MoveTo(GetWorldLocation(GemABoardLocation));
 }
 
 void AGameBoard::BeginPlay()

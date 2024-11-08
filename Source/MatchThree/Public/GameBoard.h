@@ -79,12 +79,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game Board")
 	AGemBase* GetGem(const FBoardLocation& InLocation) const;
 
+	// Get the board location of the given gem
+	UFUNCTION(BlueprintCallable, Category = "Game Board")
+	FBoardLocation GetBoardLocation(AGemBase* Gem) const;
+
 	// Get the world location of the given board location
 	UFUNCTION(BlueprintCallable, Category = "Game Board")
 	FVector GetWorldLocation(const FBoardLocation& InLocation) const;
 
 	// Get the number of gems at the bottom of the column
 	int32 GetColumnHeight(int32 Column) const;
+
+	// Swap the gems' position on the board
+	void SwapGems(AGemBase* GemA, AGemBase* GemB);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")

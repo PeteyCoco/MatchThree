@@ -5,7 +5,9 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameBoard.h"
 #include "GemBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "MatchThree/MatchThree.h"
 #include "SelectionIndicator.h"
 
@@ -42,8 +44,6 @@ void AMatchThreePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AMatchThreePawn::Click(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Click!"));
-
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController && SelectionIndicator)
 	{
@@ -76,14 +76,20 @@ void AMatchThreePawn::Click(const FInputActionValue& Value)
 		{
 			if (HitGem != SelectedGem)
 			{
+				GameBoard = !GameBoard ? GetGameBoard() : GameBoard;
+				if (GameBoard)
+				{
+					GameBoard->SwapGems(SelectedGem, HitGem);
+				}
 				SelectedGem->SetSelected(false);
 				SelectedGem = nullptr;
-				SelectedGem = HitGem;
-				SelectedGem->SetSelected(true);
-
-				SelectionIndicator->SetActorLocation(SelectedGem->GetActorLocation());
-				SelectionIndicator->Show(true);
+				SelectionIndicator->Show(false);
 			}
 		}
 	}
+}
+
+AGameBoard* AMatchThreePawn::GetGameBoard()
+{
+	return Cast<AGameBoard>(UGameplayStatics::GetActorOfClass(this, AGameBoard::StaticClass()));
 }
