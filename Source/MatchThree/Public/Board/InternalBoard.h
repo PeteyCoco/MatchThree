@@ -58,6 +58,9 @@ public:
 	// Return true if the gems are next to eachother
 	bool AreNeighbours(AGemBase* GemA, AGemBase* GemB) const;
 
+	// Move gems to their lowest positions in each column
+	void Collapse();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	int32 BoardWidth = 8;

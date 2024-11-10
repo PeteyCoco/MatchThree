@@ -165,3 +165,7 @@ bool UInternalBoard::AreNeighbours(AGemBase* GemA, AGemBase* GemB) const
 	}
 	return false;
 }
+
+void UInternalBoard::Collapse()
+{
+}
