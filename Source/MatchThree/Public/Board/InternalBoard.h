@@ -49,6 +49,11 @@ public:
 
 	AGemBase* GetGem(const FBoardLocation& BoardLocation);
 
+	FBoardLocation GetBoardLocation(AGemBase* Gem);
+
+	// Get all gems that form a match with the given gem
+	void GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	int32 BoardWidth = 8;

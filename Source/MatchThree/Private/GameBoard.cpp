@@ -74,30 +74,6 @@ AGemBase* AGameBoard::GetGem(const FBoardLocation& InLocation) const
 	return InternalBoard->GetGem(InLocation);
 }
 
-FBoardLocation AGameBoard::GetBoardLocation(AGemBase* Gem) const
-{
-	if (!Gem)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Gem is nullptr. Returning default location."));
-		return FBoardLocation();
-	}
-	else
-	{
-		for (int32 ColIndex = 0; ColIndex < BoardWidth; ++ColIndex)
-		{
-			for (int32 RowIndex = 0; RowIndex < BoardHeight; ++RowIndex)
-			{
-				if (InternalBoard->GetGem({ColIndex, RowIndex}) == Gem)
-				{
-					return FBoardLocation(ColIndex, RowIndex);
-				}
-			}
-		}
-	}
-	UE_LOG(LogTemp, Error, TEXT("Gem [&s] does not exist on the board. Returning default location."), Gem->GetFName());
-	return FBoardLocation();
-}
-
 FVector AGameBoard::GetWorldLocation(const FBoardLocation& InLocation) const
 {
 	FVector WorldPosition = GetActorLocation();
@@ -120,8 +96,8 @@ bool AGameBoard::CanSwapGems(AGemBase* GemA, AGemBase* GemB) const
 {
 	if (GemA && GemB)
 	{
-		const FBoardLocation GemABoardLocation = GetBoardLocation(GemA);
-		const FBoardLocation GemBBoardLocation = GetBoardLocation(GemB);
+		const FBoardLocation GemABoardLocation = InternalBoard->GetBoardLocation(GemA);
+		const FBoardLocation GemBBoardLocation = InternalBoard->GetBoardLocation(GemB);
 
 		const int XDiff =  FMath::Abs(GemABoardLocation.X - GemBBoardLocation.X);
 		const int YDiff = FMath::Abs(GemABoardLocation.Y - GemBBoardLocation.Y);
@@ -141,8 +117,8 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 	CurrentSwap.FirstGem = GemA;
 	CurrentSwap.SecondGem = GemB;
 
-	FBoardLocation FirstGemBoardLocation = GetBoardLocation(CurrentSwap.FirstGem);
-	FBoardLocation SecondGemBoardLocation = GetBoardLocation(CurrentSwap.SecondGem);
+	const FBoardLocation FirstGemBoardLocation = InternalBoard->GetBoardLocation(CurrentSwap.FirstGem);
+	const FBoardLocation SecondGemBoardLocation = InternalBoard->GetBoardLocation(CurrentSwap.SecondGem);
 
 	// Swap the gems' world position
 	CurrentSwap.FirstGem->OnMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::HandleSwapComplete);
@@ -156,95 +132,6 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 	InternalBoard->SetGem(CurrentSwap.FirstGem, SecondGemBoardLocation);
 }
 
-void AGameBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray)
-{
-	if (!Gem) return;
-
-	FBoardLocation GemBoardLocation = GetBoardLocation(Gem);
-
-	const int XMin = FMath::Max(0, GemBoardLocation.X - 2);
-	const int XMax = FMath::Min(GemBoardLocation.X + 2, BoardWidth - 1);
-
-	// Check horizontal matches
-	TArray<AGemBase*> Matches;
-	Matches.Add(Gem);
-
-	// Grow the left
-	for (int i = GemBoardLocation.X - 1; XMin <= i; i--)
-	{
-		AGemBase* CandidateGem = InternalBoard->GetGem({ i,GemBoardLocation.Y });
-		if (CandidateGem->GetType() == Gem->GetType())
-		{
-			Matches.Add(CandidateGem);
-		}
-		else
-		{
-			break;
-		}
-	}
-	// Grow the right
-	for (int i = GemBoardLocation.X + 1; i <= XMax; i++)
-	{
-		AGemBase* CandidateGem = InternalBoard->GetGem({ i,GemBoardLocation.Y });
-		if (CandidateGem->GetType() == Gem->GetType())
-		{
-			Matches.Add(CandidateGem);
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	// Check that at least 3 matches occured
-	if (Matches.Num() >= 3)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Match of length %d along the horizontal"), Matches.Num());
-		OutArray.Append(Matches);
-		return;
-	}
-
-	// Check vertical matches
-	const int YMin = FMath::Max(0, GemBoardLocation.Y - 2);
-	const int YMax = FMath::Min(GemBoardLocation.Y + 2, BoardHeight - 1);
-
-	Matches.Empty();
-	Matches.Add(Gem);
-
-	// Grow the bottom
-	for (int i = GemBoardLocation.Y - 1; YMin <= i; i--)
-	{
-		AGemBase* CandidateGem = InternalBoard->GetGem({ GemBoardLocation.X,i });
-		if (CandidateGem->GetType() == Gem->GetType())
-		{
-			Matches.Add(CandidateGem);
-		}
-		else
-		{
-			break;
-		}
-	}
-	// Grow the top
-	for (int i = GemBoardLocation.Y + 1; i <= YMax; i++)
-	{
-		AGemBase* CandidateGem = InternalBoard->GetGem({ GemBoardLocation.X,i });
-		if (CandidateGem->GetType() == Gem->GetType())
-		{
-			Matches.Add(CandidateGem);
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	// Check that at least 3 matches occured
-	if (Matches.Num() >= 3)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Match of length %d along the vertical"), Matches.Num());
-		OutArray.Append(Matches);
-	}
-}
 
 void AGameBoard::HandleSwapComplete()
 {
@@ -260,8 +147,8 @@ void AGameBoard::HandleSwapComplete()
 		UE_LOG(LogTemp, Warning, TEXT("Swap complete and no matches"));
 
 		// Undo the current swap
-		FBoardLocation FirstGemBoardLocation = GetBoardLocation(CurrentSwap.FirstGem);
-		FBoardLocation SecondGemBoardLocation = GetBoardLocation(CurrentSwap.SecondGem);
+		const FBoardLocation FirstGemBoardLocation = InternalBoard->GetBoardLocation(CurrentSwap.FirstGem);
+		const FBoardLocation SecondGemBoardLocation = InternalBoard->GetBoardLocation(CurrentSwap.SecondGem);
 
 		// Swap the gems' world position
 		CurrentSwap.FirstGem->MoveTo(GetWorldLocation(SecondGemBoardLocation));
