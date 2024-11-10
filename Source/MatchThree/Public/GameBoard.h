@@ -25,32 +25,6 @@ enum class EGemType : uint8
 	MAX
 };
 
-/*
-* Struct representing a coordinate on the board
-*/
-USTRUCT(Blueprintable)
-struct FBoardLocation
-{
-	GENERATED_BODY()
-
-	FBoardLocation()
-	{
-		X = 0;
-		Y = 0;
-	}
-	FBoardLocation(int InX, int InY)
-	{
-		X = InX;
-		Y = InY;
-	}
-
-	UPROPERTY()
-	int32 X = 0;  
-
-	UPROPERTY()
-	int32 Y = 0;
-};
-
 /* The gems involved in a swap action */
 USTRUCT()
 struct FSwapPair
@@ -72,7 +46,6 @@ class MATCHTHREE_API AGameBoard : public AActor
 	//~ Begin AActor interface
 protected:
 	virtual void BeginPlay() override;
-	void InitializeInternalBoard();
 	//~ End AActor interface
 
 public:
@@ -135,9 +108,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Gem Properties")
 	float GemScale = 0.9f;
 
-	/* Internal gem locations on the board*/
-	TArray<TArray<AGemBase*>> Gems;
-
 	UFUNCTION()
 	void HandleSwapComplete();
 
@@ -145,4 +115,7 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, Category = "Internal Board")
 	UInternalBoard* InternalBoard;
+
+	void InitializeInternalBoard();
+
 };

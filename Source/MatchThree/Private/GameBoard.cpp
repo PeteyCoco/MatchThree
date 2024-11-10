@@ -25,16 +25,9 @@ void AGameBoard::BeginPlay()
 
 void AGameBoard::InitializeInternalBoard()
 {
-	Gems.Empty();
-	Gems.SetNum(BoardWidth);
-	for (int32 ColIndex = 0; ColIndex < BoardWidth; ++ColIndex)
+	if (InternalBoard)
 	{
-		Gems[ColIndex].SetNum(BoardHeight);
-
-		for (int32 RowIndex = 0; RowIndex < BoardHeight; ++RowIndex)
-		{
-			Gems[ColIndex][RowIndex] = nullptr;
-		}
+		InternalBoard->Initialize(BoardWidth, BoardHeight);
 	}
 }
 
@@ -70,14 +63,15 @@ void AGameBoard::SpawnGem(int32 Column, EGemType GemType)
 	GemToPlace->FinishSpawning(SpawnTransform);
 
 	// Set the gem on the board
-	Gems[Column][Row] = GemToPlace;
+	InternalBoard->SetGem(GemToPlace, { Column, Row });
+
 	GemToPlace->MoveTo(GetWorldLocation({ Column, Row }));
 
 }
 
 AGemBase* AGameBoard::GetGem(const FBoardLocation& InLocation) const
 {
-	return Gems[InLocation.X][InLocation.Y];
+	return InternalBoard->GetGem(InLocation);
 }
 
 FBoardLocation AGameBoard::GetBoardLocation(AGemBase* Gem) const
@@ -93,7 +87,7 @@ FBoardLocation AGameBoard::GetBoardLocation(AGemBase* Gem) const
 		{
 			for (int32 RowIndex = 0; RowIndex < BoardHeight; ++RowIndex)
 			{
-				if (Gems[ColIndex][RowIndex] == Gem)
+				if (InternalBoard->GetGem({ColIndex, RowIndex}) == Gem)
 				{
 					return FBoardLocation(ColIndex, RowIndex);
 				}
@@ -158,8 +152,8 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 	CurrentSwap.SecondGem->MoveTo(GetWorldLocation(FirstGemBoardLocation));
 
 	// Swap internal board positions
-	Gems[FirstGemBoardLocation.X][FirstGemBoardLocation.Y] = CurrentSwap.SecondGem;
-	Gems[SecondGemBoardLocation.X][SecondGemBoardLocation.Y] = CurrentSwap.FirstGem;
+	InternalBoard->SetGem(CurrentSwap.SecondGem, FirstGemBoardLocation);
+	InternalBoard->SetGem(CurrentSwap.FirstGem, SecondGemBoardLocation);
 }
 
 void AGameBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray)
@@ -178,7 +172,7 @@ void AGameBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray)
 	// Grow the left
 	for (int i = GemBoardLocation.X - 1; XMin <= i; i--)
 	{
-		AGemBase* CandidateGem = Gems[i][GemBoardLocation.Y];
+		AGemBase* CandidateGem = InternalBoard->GetGem({ i,GemBoardLocation.Y });
 		if (CandidateGem->GetType() == Gem->GetType())
 		{
 			Matches.Add(CandidateGem);
@@ -191,7 +185,7 @@ void AGameBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray)
 	// Grow the right
 	for (int i = GemBoardLocation.X + 1; i <= XMax; i++)
 	{
-		AGemBase* CandidateGem = Gems[i][GemBoardLocation.Y];
+		AGemBase* CandidateGem = InternalBoard->GetGem({ i,GemBoardLocation.Y });
 		if (CandidateGem->GetType() == Gem->GetType())
 		{
 			Matches.Add(CandidateGem);
@@ -220,7 +214,7 @@ void AGameBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray)
 	// Grow the bottom
 	for (int i = GemBoardLocation.Y - 1; YMin <= i; i--)
 	{
-		AGemBase* CandidateGem = Gems[GemBoardLocation.X][i];
+		AGemBase* CandidateGem = InternalBoard->GetGem({ GemBoardLocation.X,i });
 		if (CandidateGem->GetType() == Gem->GetType())
 		{
 			Matches.Add(CandidateGem);
@@ -233,7 +227,7 @@ void AGameBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray)
 	// Grow the top
 	for (int i = GemBoardLocation.Y + 1; i <= YMax; i++)
 	{
-		AGemBase* CandidateGem = Gems[GemBoardLocation.X][i];
+		AGemBase* CandidateGem = InternalBoard->GetGem({ GemBoardLocation.X,i });
 		if (CandidateGem->GetType() == Gem->GetType())
 		{
 			Matches.Add(CandidateGem);
@@ -274,8 +268,8 @@ void AGameBoard::HandleSwapComplete()
 		CurrentSwap.SecondGem->MoveTo(GetWorldLocation(FirstGemBoardLocation));
 
 		// Swap internal board positions
-		Gems[FirstGemBoardLocation.X][FirstGemBoardLocation.Y] = CurrentSwap.SecondGem;
-		Gems[SecondGemBoardLocation.X][SecondGemBoardLocation.Y] = CurrentSwap.FirstGem;
+		InternalBoard->SetGem(CurrentSwap.SecondGem, FirstGemBoardLocation);
+		InternalBoard->SetGem(CurrentSwap.FirstGem, SecondGemBoardLocation);
 
 		// Clear the current swap
 		CurrentSwap.FirstGem = nullptr;
