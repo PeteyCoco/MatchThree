@@ -31,6 +31,14 @@ void AGameBoard::InitializeInternalBoard()
 	}
 }
 
+void AGameBoard::DestroyGem(AGemBase* Gem)
+{
+	if (!Gem) return;
+
+	InternalBoard->SetGem(nullptr, InternalBoard->GetBoardLocation(Gem));
+	Gem->Destroy();
+}
+
 void AGameBoard::ResetBoard()
 {
 	TArray<EGemType> GemTypes;
@@ -119,6 +127,16 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 	InternalBoard->SetGem(CurrentSwap.FirstGem, SecondGemBoardLocation);
 }
 
+void AGameBoard::SettleBoard()
+{
+	TArray<AGemBase*> Gems;
+	InternalBoard->GetAllGems(Gems);
+	for (AGemBase* Gem : Gems)
+	{
+		if (Gem) Gem->MoveTo(GetWorldLocation(InternalBoard->GetBoardLocation(Gem)));
+	}
+}
+
 void AGameBoard::HandleSwapComplete()
 {
 	// Wait for both gems to stop moving
@@ -151,6 +169,15 @@ void AGameBoard::HandleSwapComplete()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Swap complete and matches"));
+
+		// Destroy matches
+		for (AGemBase* Gem : Matches)
+		{
+			DestroyGem(Gem);
+		}
+
+		InternalBoard->Collapse();
+		SettleBoard();
 	}
 }
 

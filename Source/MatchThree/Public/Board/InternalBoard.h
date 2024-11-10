@@ -66,6 +66,9 @@ public:
 	// Return true if the given location is empty
 	bool IsEmpty(const FBoardLocation& BoardLocation) const;
 
+	// Get references to all board gems
+	void GetAllGems(TArray<AGemBase*>& OutGems) const;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	int32 BoardWidth = 8;

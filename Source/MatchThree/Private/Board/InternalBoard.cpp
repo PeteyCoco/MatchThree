@@ -197,6 +197,19 @@ bool UInternalBoard::IsEmpty(const FBoardLocation& BoardLocation) const
 	return GetGem(BoardLocation) == nullptr;
 }
 
+void UInternalBoard::GetAllGems(TArray<AGemBase*>& OutGems) const
+{
+	OutGems.Empty();
+	OutGems.SetNum(BoardHeight * BoardWidth);
+	for (int32 ColIndex = 0; ColIndex < BoardWidth; ++ColIndex)
+	{
+		for (int32 RowIndex = 0; RowIndex < BoardHeight; ++RowIndex)
+		{
+			OutGems.Add(GetGem({ ColIndex, RowIndex }));
+		}
+	}
+}
+
 bool operator==(const FBoardLocation& A, const FBoardLocation& B)
 {
 	return A.X == B.X && A.Y == B.Y;

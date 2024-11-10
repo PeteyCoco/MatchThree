@@ -74,6 +74,9 @@ public:
 	// Swap the gems' position on the board
 	void SwapGems(AGemBase* GemA, AGemBase* GemB);
 
+	// Move the board gems to their board positions
+	void SettleBoard();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	int32 BoardWidth = 8;
@@ -110,5 +113,7 @@ protected:
 	UInternalBoard* InternalBoard;
 
 	void InitializeInternalBoard();
+
+	void DestroyGem(AGemBase* Gem);
 
 };
