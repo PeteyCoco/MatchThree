@@ -170,14 +170,23 @@ void UInternalBoard::Collapse()
 {
 	for (int32 ColIndex = 0; ColIndex < BoardWidth; ++ColIndex)
 	{
+		int NumberOfGaps = 0;
 		for (int32 RowIndex = 0; RowIndex < BoardHeight; ++RowIndex)
 		{
 			FBoardLocation CurrentLocation{ ColIndex, RowIndex };
-			FBoardLocation AboveLocation{ ColIndex, RowIndex + 1 };
 
-			if (AboveLocation.Y < BoardHeight && GetGem(CurrentLocation) == nullptr)
+			if (IsEmpty(CurrentLocation))
 			{
-				SetGem(GetGem(AboveLocation), CurrentLocation);
+				NumberOfGaps++;
+			}
+			else
+			{
+				FBoardLocation BelowLocation{ ColIndex, RowIndex - NumberOfGaps };
+				if (CurrentLocation != BelowLocation)
+				{
+					SetGem(GetGem(CurrentLocation), BelowLocation);
+					SetGem(nullptr, CurrentLocation);
+				}
 			}
 		}
 	}
