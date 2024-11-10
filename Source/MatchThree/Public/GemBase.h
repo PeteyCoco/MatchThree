@@ -36,6 +36,9 @@ public:
 	// Move the gem to the given world location
 	void MoveTo(const FVector& NewLocation);
 
+	// Returns true if the gem is moving
+	bool IsMoving() const { return MovementComponent->IsMoving(); }
+
 	// Delegate to broadcast on MoveTo complete
 	FOnMoveToCompleteSignature OnMoveToCompleteDelegate;
 

@@ -117,15 +117,22 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 {
 	if (!GemA || !GemB) return;
 
-	FBoardLocation GemABoardLocation = GetBoardLocation(GemA);
-	FBoardLocation GemBBoardLocation = GetBoardLocation(GemB);
+	CurrentSwap.FirstGem = GemA;
+	CurrentSwap.SecondGem = GemB;
 
-	Gems[GemABoardLocation.X][GemABoardLocation.Y] = GemB;
-	Gems[GemBBoardLocation.X][GemBBoardLocation.Y] = GemA;
+	FBoardLocation FirstGemBoardLocation = GetBoardLocation(CurrentSwap.FirstGem);
+	FBoardLocation SecondGemBoardLocation = GetBoardLocation(CurrentSwap.SecondGem);
 
-	GemA->OnMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::HandleSwapComplete);
-	GemA->MoveTo(GetWorldLocation(GemBBoardLocation));
-	GemB->MoveTo(GetWorldLocation(GemABoardLocation));
+	// Swap the gems' world position
+	CurrentSwap.FirstGem->OnMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::HandleSwapComplete);
+	CurrentSwap.SecondGem->OnMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::HandleSwapComplete);
+
+	CurrentSwap.FirstGem->MoveTo(GetWorldLocation(SecondGemBoardLocation));
+	CurrentSwap.SecondGem->MoveTo(GetWorldLocation(FirstGemBoardLocation));
+
+	// Swap internal board positions
+	Gems[FirstGemBoardLocation.X][FirstGemBoardLocation.Y] = CurrentSwap.SecondGem;
+	Gems[SecondGemBoardLocation.X][SecondGemBoardLocation.Y] = CurrentSwap.FirstGem;
 }
 
 void AGameBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray)
@@ -220,7 +227,37 @@ void AGameBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray)
 
 void AGameBoard::HandleSwapComplete()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Swap complete!"));
+	// Wait for both gems to stop moving
+	if (CurrentSwap.FirstGem->IsMoving() || CurrentSwap.SecondGem->IsMoving()) return;
+
+	TArray<AGemBase*> Matches;
+	GetMatches(CurrentSwap.FirstGem, Matches);
+	GetMatches(CurrentSwap.SecondGem, Matches);
+
+	if (Matches.Num() < 3)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Swap complete and no matches"));
+
+		// Undo the current swap
+		FBoardLocation FirstGemBoardLocation = GetBoardLocation(CurrentSwap.FirstGem);
+		FBoardLocation SecondGemBoardLocation = GetBoardLocation(CurrentSwap.SecondGem);
+
+		// Swap the gems' world position
+		CurrentSwap.FirstGem->MoveTo(GetWorldLocation(SecondGemBoardLocation));
+		CurrentSwap.SecondGem->MoveTo(GetWorldLocation(FirstGemBoardLocation));
+
+		// Swap internal board positions
+		Gems[FirstGemBoardLocation.X][FirstGemBoardLocation.Y] = CurrentSwap.SecondGem;
+		Gems[SecondGemBoardLocation.X][SecondGemBoardLocation.Y] = CurrentSwap.FirstGem;
+
+		// Clear the current swap
+		CurrentSwap.FirstGem = nullptr;
+		CurrentSwap.SecondGem = nullptr;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Swap complete and matches"));
+	}
 }
 
 void AGameBoard::BeginPlay()
@@ -246,9 +283,3 @@ void AGameBoard::InitializeInternalBoard()
 		}
 	}
 }
-
-void AGameBoard::Tick(float DeltaTime)
-{
-
-}
-

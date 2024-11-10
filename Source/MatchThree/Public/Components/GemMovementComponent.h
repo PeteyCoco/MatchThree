@@ -25,6 +25,9 @@ public:
 	// Move towards the new location with constant acceleration
 	void MoveTo(const FVector& NewLocation);
 
+	// Returns true if the gem is moving
+	bool IsMoving() const { return bIsMoving; }
+
 	// Delegate to broadcast on MoveTo complete
 	FOnMoveToCompleteSignature OnMoveToCompleteDelegate;
 

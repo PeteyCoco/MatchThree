@@ -50,6 +50,16 @@ struct FBoardLocation
 	int32 Y = 0;
 };
 
+/* The gems involved in a swap action */
+USTRUCT()
+struct FSwapPair
+{
+	GENERATED_BODY()
+
+	AGemBase* FirstGem;
+	AGemBase* SecondGem;
+};
+
 /*
 * Base class for the game board in a match three game
 */
@@ -59,8 +69,6 @@ class MATCHTHREE_API AGameBoard : public AActor
 	GENERATED_BODY()
 	
 	//~ Begin AActor interface
-public:
-	virtual void Tick(float DeltaTime) override;
 protected:
 	virtual void BeginPlay() override;
 	void InitializeInternalBoard();
@@ -131,4 +139,6 @@ protected:
 
 	UFUNCTION()
 	void HandleSwapComplete();
+
+	FSwapPair CurrentSwap;
 };
