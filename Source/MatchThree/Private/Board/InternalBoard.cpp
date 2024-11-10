@@ -210,6 +210,34 @@ void UInternalBoard::GetAllGems(TArray<AGemBase*>& OutGems) const
 	}
 }
 
+int UInternalBoard::SpacesAtTop(int Column) const
+{
+	int Spaces = 0;
+	for (int Row = BoardHeight - 1; Row >= 0; Row--)
+	{
+		if (IsEmpty({ Column, Row }))
+		{
+			Spaces++;
+		}
+		else
+		{
+			break;
+		}
+	}
+	return Spaces;
+}
+
+bool UInternalBoard::AddGemToTopOfColumn(int Column, AGemBase* Gem)
+{
+	if (SpacesAtTop(Column) == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Tried adding a gem to a full column [column:%d]"), Column)
+		return false;
+	}
+	SetGem(Gem, { Column, BoardHeight - SpacesAtTop(Column)});
+	return true;
+}
+
 bool operator==(const FBoardLocation& A, const FBoardLocation& B)
 {
 	return A.X == B.X && A.Y == B.Y;

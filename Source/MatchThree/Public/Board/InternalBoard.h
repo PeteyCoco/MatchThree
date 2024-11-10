@@ -69,6 +69,12 @@ public:
 	// Get references to all board gems
 	void GetAllGems(TArray<AGemBase*>& OutGems) const;
 
+	// Get the number of empty spaces at the top of the column
+	int SpacesAtTop(int Column) const;
+
+	// Add a gem to the top of the column. Returns false if failed
+	bool AddGemToTopOfColumn(int Column, AGemBase* Gem);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	int32 BoardWidth = 8;

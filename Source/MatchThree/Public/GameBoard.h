@@ -77,6 +77,9 @@ public:
 	// Move the board gems to their board positions
 	void SettleBoard();
 
+	// Spawn gems at the top of the board to fill in empty space
+	void FillBoard();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	int32 BoardWidth = 8;

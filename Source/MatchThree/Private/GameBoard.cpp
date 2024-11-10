@@ -137,6 +137,36 @@ void AGameBoard::SettleBoard()
 	}
 }
 
+void AGameBoard::FillBoard()
+{
+	TArray<EGemType> GemTypes;
+	int NumGemTypes = GemData.GetKeys(GemTypes);
+
+	for (int i = 0; i < BoardWidth; i++)
+	{
+		const int NumberOfGemsToSpawn = InternalBoard->SpacesAtTop(i);
+
+		for (int j = 0; j < NumberOfGemsToSpawn; j++)
+		{
+			FVector SpawnLocation = GetActorLocation();
+			SpawnLocation += GetActorRightVector() * i * CellSpacing;
+			SpawnLocation += GetActorForwardVector() * (BoardHeight + DistanceSpawnAboveBoard) * CellSpacing;
+			FTransform SpawnTransform;
+			SpawnTransform.SetLocation(SpawnLocation);
+			SpawnTransform.SetRotation(GetActorRotation().Quaternion());
+
+			AGemBase* GemToPlace = GetWorld()->SpawnActorDeferred<AGemBase>(GemActorClass, SpawnTransform);
+			EGemType GemType = GemTypes[FMath::RandRange(0, NumGemTypes - 1)];
+			GemToPlace->SetData(GemData[GemType]);
+			GemToPlace->SetActorScale3D(FVector(GemScale, GemScale, GemScale));
+			GemToPlace->FinishSpawning(SpawnTransform);
+
+			InternalBoard->AddGemToTopOfColumn(i, GemToPlace);
+		}
+	}
+	SettleBoard();
+}
+
 void AGameBoard::HandleSwapComplete()
 {
 	// Wait for both gems to stop moving
@@ -177,7 +207,7 @@ void AGameBoard::HandleSwapComplete()
 		}
 
 		InternalBoard->Collapse();
-		SettleBoard();
+		FillBoard();
 	}
 }
 
