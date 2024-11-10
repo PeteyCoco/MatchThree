@@ -6,6 +6,7 @@
 #include "Board/InternalBoard.h"
 #include "GemBase.h"
 #include "DrawDebugHelpers.h"
+#include "TimerManager.h"
 
 AGameBoard::AGameBoard()
 {
@@ -37,6 +38,21 @@ void AGameBoard::DestroyGem(AGemBase* Gem)
 
 	InternalBoard->SetGem(nullptr, InternalBoard->GetBoardLocation(Gem));
 	Gem->Destroy();
+}
+
+void AGameBoard::CascadeTimerCallback()
+{
+	if (CascadeCurrentRow < BoardHeight)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cascading row %d"), CascadeCurrentRow);
+		SettleRow(CascadeCurrentRow);
+		CascadeCurrentRow++;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Ending board cascade"), CascadeCurrentRow);
+		GetWorld()->GetTimerManager().ClearTimer(CascadeTimer);
+	}
 }
 
 void AGameBoard::ResetBoard()
@@ -96,8 +112,15 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 
 void AGameBoard::SettleBoard()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Starting cascade"));
+	CascadeCurrentRow = 0;
+	GetWorld()->GetTimerManager().SetTimer(CascadeTimer, this, &AGameBoard::CascadeTimerCallback, CascadeRate, true);
+}
+
+void AGameBoard::SettleRow(int Row)
+{
 	TArray<AGemBase*> Gems;
-	InternalBoard->GetAllGems(Gems);
+	InternalBoard->GetGemsInRow(Row, Gems);
 	for (AGemBase* Gem : Gems)
 	{
 		if (Gem) Gem->MoveTo(GetWorldLocation(InternalBoard->GetBoardLocation(Gem)));
@@ -122,6 +145,23 @@ void AGameBoard::FillBoard()
 		}
 	}
 	SettleBoard();
+}
+
+AGemBase* AGameBoard::SpawnGem(int32 Column, EGemType GemType)
+{
+	const int Row = GetColumnHeight(Column);
+	FVector SpawnLocation = GetActorLocation();
+	SpawnLocation += GetActorRightVector() * Column * CellSpacing;
+	SpawnLocation += GetActorForwardVector() * (BoardHeight + DistanceSpawnAboveBoard) * CellSpacing;
+	FTransform SpawnTransform;
+	SpawnTransform.SetLocation(SpawnLocation);
+	SpawnTransform.SetRotation(GetActorRotation().Quaternion());
+
+	AGemBase* GemToPlace = GetWorld()->SpawnActorDeferred<AGemBase>(GemActorClass, SpawnTransform);
+	GemToPlace->SetData(GemData[GemType]);
+	GemToPlace->SetActorScale3D(FVector(GemScale, GemScale, GemScale));
+	GemToPlace->FinishSpawning(SpawnTransform);
+	return GemToPlace;
 }
 
 void AGameBoard::HandleSwapComplete()

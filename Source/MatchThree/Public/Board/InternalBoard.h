@@ -69,6 +69,9 @@ public:
 	// Get references to all board gems
 	void GetAllGems(TArray<AGemBase*>& OutGems) const;
 
+	// Get references to all gems in a row
+	void GetGemsInRow(int Row, TArray<AGemBase*>& OutGems) const;
+
 	// Get the number of empty spaces at the top of the column
 	int SpacesAtTop(int Column) const;
 

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/TimerHandle.h"
 #include "GameBoard.generated.h"
 
 class AGemBase;
@@ -77,6 +78,9 @@ public:
 	// Move the board gems to their board positions
 	void SettleBoard();
 
+	// Move the board gems in a given row to their positions
+	void SettleRow(int Row);
+
 	// Spawn gems at the top of the board to fill in empty space
 	void FillBoard();
 
@@ -118,5 +122,12 @@ protected:
 	void InitializeInternalBoard();
 
 	void DestroyGem(AGemBase* Gem);
+
+
+	FTimerHandle CascadeTimer;
+	float CascadeRate = 1.f;
+	int CascadeCurrentRow = 0;
+	UFUNCTION()
+	void CascadeTimerCallback();
 
 };
