@@ -74,9 +74,6 @@ public:
 	// Swap the gems' position on the board
 	void SwapGems(AGemBase* GemA, AGemBase* GemB);
 
-	// Append reference to all neighbouring gems matching the given gem's type to the given array
-	void GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray);
-
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	int32 BoardWidth = 8;

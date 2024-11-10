@@ -24,12 +24,17 @@ void UInternalBoard::SetGem(AGemBase* Gem, const FBoardLocation& BoardLocation)
 	BoardData[BoardLocation.X][BoardLocation.Y] = Gem;
 }
 
+AGemBase* UInternalBoard::GetGem(const FBoardLocation& BoardLocation) const
+{
+	return BoardData[BoardLocation.X][BoardLocation.Y];
+}
+
 AGemBase* UInternalBoard::GetGem(const FBoardLocation& BoardLocation)
 {
 	return BoardData[BoardLocation.X][BoardLocation.Y];
 }
 
-FBoardLocation UInternalBoard::GetBoardLocation(AGemBase* Gem)
+FBoardLocation UInternalBoard::GetBoardLocation(AGemBase* Gem) const
 {
 	if (!Gem)
 	{
@@ -53,7 +58,7 @@ FBoardLocation UInternalBoard::GetBoardLocation(AGemBase* Gem)
 	return FBoardLocation();
 }
 
-void UInternalBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray)
+void UInternalBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray) const
 {
 	if (!Gem) return;
 
@@ -141,4 +146,22 @@ void UInternalBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray)
 		UE_LOG(LogTemp, Warning, TEXT("Match of length %d along the vertical"), Matches.Num());
 		OutArray.Append(Matches);
 	}
+}
+
+bool UInternalBoard::AreNeighbours(AGemBase* GemA, AGemBase* GemB) const
+{
+	if (GemA && GemB)
+	{
+		const FBoardLocation GemABoardLocation = GetBoardLocation(GemA);
+		const FBoardLocation GemBBoardLocation = GetBoardLocation(GemB);
+
+		const int XDiff = FMath::Abs(GemABoardLocation.X - GemBBoardLocation.X);
+		const int YDiff = FMath::Abs(GemABoardLocation.Y - GemBBoardLocation.Y);
+
+		const bool bXNeighbours = XDiff == 1 && YDiff == 0;
+		const bool bYNeighbours = XDiff == 0 && YDiff == 1;
+
+		return bXNeighbours || bYNeighbours;
+	}
+	return false;
 }

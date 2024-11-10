@@ -45,14 +45,18 @@ class MATCHTHREE_API UInternalBoard : public UObject
 public:
 	void Initialize(int32 InBoardWidth, int32 InBoardHeight);
 
-	void SetGem(AGemBase* Gem, const FBoardLocation& BoardLocation);
-
+	AGemBase* GetGem(const FBoardLocation& BoardLocation) const;
 	AGemBase* GetGem(const FBoardLocation& BoardLocation);
 
-	FBoardLocation GetBoardLocation(AGemBase* Gem);
+	void SetGem(AGemBase* Gem, const FBoardLocation& BoardLocation);
+
+	FBoardLocation GetBoardLocation(AGemBase* Gem) const;
 
 	// Get all gems that form a match with the given gem
-	void GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray);
+	void GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray) const;
+
+	// Return true if the gems are next to eachother
+	bool AreNeighbours(AGemBase* GemA, AGemBase* GemB) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")

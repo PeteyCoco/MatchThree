@@ -94,20 +94,7 @@ int32 AGameBoard::GetColumnHeight(int32 Column) const
 
 bool AGameBoard::CanSwapGems(AGemBase* GemA, AGemBase* GemB) const
 {
-	if (GemA && GemB)
-	{
-		const FBoardLocation GemABoardLocation = InternalBoard->GetBoardLocation(GemA);
-		const FBoardLocation GemBBoardLocation = InternalBoard->GetBoardLocation(GemB);
-
-		const int XDiff =  FMath::Abs(GemABoardLocation.X - GemBBoardLocation.X);
-		const int YDiff = FMath::Abs(GemABoardLocation.Y - GemBBoardLocation.Y);
-
-		const bool bXNeighbours = XDiff == 1 && YDiff == 0;
-		const bool bYNeighbours = XDiff == 0 && YDiff == 1;
-
-		return bXNeighbours || bYNeighbours;
-	}
-	return false;
+	return InternalBoard->AreNeighbours(GemA, GemB);
 }
 
 void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
@@ -132,15 +119,14 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 	InternalBoard->SetGem(CurrentSwap.FirstGem, SecondGemBoardLocation);
 }
 
-
 void AGameBoard::HandleSwapComplete()
 {
 	// Wait for both gems to stop moving
 	if (CurrentSwap.FirstGem->IsMoving() || CurrentSwap.SecondGem->IsMoving()) return;
 
 	TArray<AGemBase*> Matches;
-	GetMatches(CurrentSwap.FirstGem, Matches);
-	GetMatches(CurrentSwap.SecondGem, Matches);
+	InternalBoard->GetMatches(CurrentSwap.FirstGem, Matches);
+	InternalBoard->GetMatches(CurrentSwap.SecondGem, Matches);
 
 	if (Matches.Num() < 3)
 	{
