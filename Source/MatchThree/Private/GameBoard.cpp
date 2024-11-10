@@ -41,40 +41,7 @@ void AGameBoard::DestroyGem(AGemBase* Gem)
 
 void AGameBoard::ResetBoard()
 {
-	TArray<EGemType> GemTypes;
-	int NumGemTypes = GemData.GetKeys(GemTypes);
-
-	for (int i = 0; i < BoardWidth; i++)
-	{
-		for (int j = 0; j < BoardHeight; j++)
-		{
-			EGemType GemType = GemTypes[FMath::RandRange(0, NumGemTypes - 1)];
-			SpawnGem(i, GemType);
-		}
-	}
-}
-
-void AGameBoard::SpawnGem(int32 Column, EGemType GemType)
-{
-	// Spawn at above board
-	const int Row = GetColumnHeight(Column);
-	FVector SpawnLocation = GetActorLocation();
-	SpawnLocation += GetActorRightVector() * Column * CellSpacing;
-	SpawnLocation += GetActorForwardVector() * (Row + BoardHeight + DistanceSpawnAboveBoard) * CellSpacing;
-	FTransform SpawnTransform;
-	SpawnTransform.SetLocation(SpawnLocation);
-	SpawnTransform.SetRotation(GetActorRotation().Quaternion());
-
-	AGemBase* GemToPlace = GetWorld()->SpawnActorDeferred<AGemBase>(GemActorClass, SpawnTransform);
-	GemToPlace->SetData(GemData[GemType]);
-	GemToPlace->SetActorScale3D(FVector(GemScale, GemScale, GemScale));
-	GemToPlace->FinishSpawning(SpawnTransform);
-
-	// Set the gem on the board
-	InternalBoard->SetGem(GemToPlace, { Column, Row });
-
-	GemToPlace->MoveTo(GetWorldLocation({ Column, Row }));
-
+	FillBoard();
 }
 
 AGemBase* AGameBoard::GetGem(const FBoardLocation& InLocation) const
@@ -148,18 +115,8 @@ void AGameBoard::FillBoard()
 
 		for (int j = 0; j < NumberOfGemsToSpawn; j++)
 		{
-			FVector SpawnLocation = GetActorLocation();
-			SpawnLocation += GetActorRightVector() * i * CellSpacing;
-			SpawnLocation += GetActorForwardVector() * (BoardHeight + DistanceSpawnAboveBoard) * CellSpacing;
-			FTransform SpawnTransform;
-			SpawnTransform.SetLocation(SpawnLocation);
-			SpawnTransform.SetRotation(GetActorRotation().Quaternion());
-
-			AGemBase* GemToPlace = GetWorld()->SpawnActorDeferred<AGemBase>(GemActorClass, SpawnTransform);
 			EGemType GemType = GemTypes[FMath::RandRange(0, NumGemTypes - 1)];
-			GemToPlace->SetData(GemData[GemType]);
-			GemToPlace->SetActorScale3D(FVector(GemScale, GemScale, GemScale));
-			GemToPlace->FinishSpawning(SpawnTransform);
+			AGemBase* GemToPlace = SpawnGem(i, GemType);
 
 			InternalBoard->AddGemToTopOfColumn(i, GemToPlace);
 		}

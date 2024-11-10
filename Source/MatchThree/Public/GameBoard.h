@@ -55,7 +55,7 @@ public:
 	void ResetBoard();
 
 	UFUNCTION(BlueprintCallable, Category = "Game Board")
-	void SpawnGem(int32 Column, EGemType GemType);
+	AGemBase* SpawnGem(int32 Column, EGemType GemType);
 
 	// Get the gem at the given board location
 	UFUNCTION(BlueprintCallable, Category = "Game Board")
