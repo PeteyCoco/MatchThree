@@ -8,6 +8,7 @@
 
 class AGemBase;
 class UGemDataAsset;
+class UInternalBoard;
 
 
 UENUM()
@@ -141,4 +142,7 @@ protected:
 	void HandleSwapComplete();
 
 	FSwapPair CurrentSwap;
+
+	UPROPERTY(VisibleInstanceOnly, Category = "Internal Board")
+	UInternalBoard* InternalBoard;
 };

@@ -3,12 +3,39 @@
 
 #include "GameBoard.h"
 
+#include "Board/InternalBoard.h"
 #include "GemBase.h"
 #include "DrawDebugHelpers.h"
 
 AGameBoard::AGameBoard()
 {
 	PrimaryActorTick.bCanEverTick = true;
+}
+
+
+void AGameBoard::BeginPlay()
+{
+	Super::BeginPlay();
+
+	InternalBoard = NewObject<UInternalBoard>(this);
+	InitializeInternalBoard();
+
+	ResetBoard();
+}
+
+void AGameBoard::InitializeInternalBoard()
+{
+	Gems.Empty();
+	Gems.SetNum(BoardWidth);
+	for (int32 ColIndex = 0; ColIndex < BoardWidth; ++ColIndex)
+	{
+		Gems[ColIndex].SetNum(BoardHeight);
+
+		for (int32 RowIndex = 0; RowIndex < BoardHeight; ++RowIndex)
+		{
+			Gems[ColIndex][RowIndex] = nullptr;
+		}
+	}
 }
 
 void AGameBoard::ResetBoard()
@@ -260,26 +287,3 @@ void AGameBoard::HandleSwapComplete()
 	}
 }
 
-void AGameBoard::BeginPlay()
-{
-	Super::BeginPlay();
-
-	InitializeInternalBoard();
-
-	ResetBoard();
-}
-
-void AGameBoard::InitializeInternalBoard()
-{
-	Gems.Empty();
-	Gems.SetNum(BoardWidth);
-	for (int32 ColIndex = 0; ColIndex < BoardWidth; ++ColIndex)
-	{
-		Gems[ColIndex].SetNum(BoardHeight);
-
-		for (int32 RowIndex = 0; RowIndex < BoardHeight; ++RowIndex)
-		{
-			Gems[ColIndex][RowIndex] = nullptr;
-		}
-	}
-}
