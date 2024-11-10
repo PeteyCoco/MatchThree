@@ -32,6 +32,8 @@ struct FBoardLocation
 
 	UPROPERTY()
 	int32 Y = 0;
+
+	friend bool operator==(const FBoardLocation& A, const FBoardLocation& B);
 };
 
 /**
@@ -60,6 +62,9 @@ public:
 
 	// Move gems to their lowest positions in each column
 	void Collapse();
+
+	// Return true if the given location is empty
+	bool IsEmpty(const FBoardLocation& BoardLocation) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")

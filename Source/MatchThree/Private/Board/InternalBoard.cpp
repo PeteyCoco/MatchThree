@@ -168,4 +168,27 @@ bool UInternalBoard::AreNeighbours(AGemBase* GemA, AGemBase* GemB) const
 
 void UInternalBoard::Collapse()
 {
+	for (int32 ColIndex = 0; ColIndex < BoardWidth; ++ColIndex)
+	{
+		for (int32 RowIndex = 0; RowIndex < BoardHeight; ++RowIndex)
+		{
+			FBoardLocation CurrentLocation{ ColIndex, RowIndex };
+			FBoardLocation AboveLocation{ ColIndex, RowIndex + 1 };
+
+			if (AboveLocation.Y < BoardHeight && GetGem(CurrentLocation) == nullptr)
+			{
+				SetGem(GetGem(AboveLocation), CurrentLocation);
+			}
+		}
+	}
+}
+
+bool UInternalBoard::IsEmpty(const FBoardLocation& BoardLocation) const
+{
+	return GetGem(BoardLocation) == nullptr;
+}
+
+bool operator==(const FBoardLocation& A, const FBoardLocation& B)
+{
+	return A.X == B.X && A.Y == B.Y;
 }
