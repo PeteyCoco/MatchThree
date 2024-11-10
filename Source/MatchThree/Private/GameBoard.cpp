@@ -152,7 +152,7 @@ AGemBase* AGameBoard::SpawnGem(int32 Column, EGemType GemType)
 	const int Row = GetColumnHeight(Column);
 	FVector SpawnLocation = GetActorLocation();
 	SpawnLocation += GetActorRightVector() * Column * CellSpacing;
-	SpawnLocation += GetActorForwardVector() * (BoardHeight + DistanceSpawnAboveBoard) * CellSpacing;
+	SpawnLocation += GetActorForwardVector() * (BoardHeight) * CellSpacing;
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(SpawnLocation);
 	SpawnTransform.SetRotation(GetActorRotation().Quaternion());

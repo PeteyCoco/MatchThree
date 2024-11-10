@@ -125,7 +125,10 @@ protected:
 
 
 	FTimerHandle CascadeTimer;
+
+	UPROPERTY(EditAnywhere, Category = "Board Properties")
 	float CascadeRate = 1.f;
+
 	int CascadeCurrentRow = 0;
 	UFUNCTION()
 	void CascadeTimerCallback();
