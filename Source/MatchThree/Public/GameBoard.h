@@ -11,7 +11,6 @@ class AGemBase;
 class UGemDataAsset;
 class UInternalBoard;
 
-
 UENUM()
 enum class EGemType : uint8
 {
@@ -83,6 +82,9 @@ public:
 
 	// Spawn gems at the top of the board to fill in empty space
 	void FillBoard();
+
+	// Return true if the gems in the given row are near their board positions
+	bool IsRowInPosition(int Row) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")

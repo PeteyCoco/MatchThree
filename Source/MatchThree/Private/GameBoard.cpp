@@ -114,6 +114,10 @@ void AGameBoard::SettleBoard()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Starting cascade"));
 	CascadeCurrentRow = 0;
+	while (IsRowInPosition(CascadeCurrentRow))
+	{
+		CascadeCurrentRow++;
+	}
 	GetWorld()->GetTimerManager().SetTimer(CascadeTimer, this, &AGameBoard::CascadeTimerCallback, CascadeRate, true);
 }
 
@@ -147,12 +151,28 @@ void AGameBoard::FillBoard()
 	SettleBoard();
 }
 
+bool AGameBoard::IsRowInPosition(int Row) const
+{
+	TArray<AGemBase*> GemsInRow;
+	InternalBoard->GetGemsInRow(Row, GemsInRow);
+	for (AGemBase* Gem : GemsInRow)
+	{
+		const FBoardLocation GemBoardLocation = InternalBoard->GetBoardLocation(Gem);
+		const float DistSquaredToBoardLocation = FVector::DistSquared(GetWorldLocation(GemBoardLocation), Gem->GetActorLocation());
+		if (DistSquaredToBoardLocation > 10.f)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 AGemBase* AGameBoard::SpawnGem(int32 Column, EGemType GemType)
 {
 	const int Row = GetColumnHeight(Column);
 	FVector SpawnLocation = GetActorLocation();
 	SpawnLocation += GetActorRightVector() * Column * CellSpacing;
-	SpawnLocation += GetActorForwardVector() * (BoardHeight) * CellSpacing;
+	SpawnLocation += GetActorForwardVector() * (BoardHeight + DistanceSpawnAboveBoard) * CellSpacing;
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(SpawnLocation);
 	SpawnTransform.SetRotation(GetActorRotation().Quaternion());

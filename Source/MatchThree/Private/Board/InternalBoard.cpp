@@ -213,7 +213,6 @@ void UInternalBoard::GetAllGems(TArray<AGemBase*>& OutGems) const
 void UInternalBoard::GetGemsInRow(int Row, TArray<AGemBase*>& OutGems) const
 {
 	OutGems.Empty();
-	OutGems.SetNum(BoardWidth);
 	for (int32 ColIndex = 0; ColIndex < BoardWidth; ++ColIndex)
 	{
 		OutGems.Add(GetGem({ ColIndex, Row }));
