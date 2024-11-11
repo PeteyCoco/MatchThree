@@ -11,6 +11,8 @@ class AGemBase;
 class UGemDataAsset;
 class UInternalBoard;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRowCascadeCompleteSignature, int, Row);
+
 UENUM()
 enum class EGemType : uint8
 {
@@ -75,10 +77,14 @@ public:
 	void SwapGems(AGemBase* GemA, AGemBase* GemB);
 
 	// Move the board gems to their board positions
-	void SettleBoard();
+	void CascadeBoard();
 
 	// Move the board gems in a given row to their positions
-	void SettleRow(int Row);
+	void CascadeRow(int Row);
+
+	// Delegate that broadcasts whenever a row has finished cascading
+	UPROPERTY(BlueprintAssignable)
+	FRowCascadeCompleteSignature RowCascadeCompleteDelegate;
 
 	// Spawn gems at the top of the board to fill in empty space
 	void FillBoard();
@@ -114,7 +120,7 @@ protected:
 	float GemScale = 0.9f;
 
 	UFUNCTION()
-	void HandleSwapComplete();
+	void HandleSwapComplete(AGemBase* InGem);
 
 	FSwapPair CurrentSwap;
 
@@ -125,7 +131,6 @@ protected:
 
 	void DestroyGem(AGemBase* Gem);
 
-
 	FTimerHandle CascadeTimer;
 
 	UPROPERTY(EditAnywhere, Category = "Board Properties")
@@ -134,5 +139,8 @@ protected:
 	int CascadeCurrentRow = 0;
 	UFUNCTION()
 	void CascadeTimerCallback();
+
+	UFUNCTION()
+	void CheckCascadeRowComplete(AGemBase* InGem);
 
 };

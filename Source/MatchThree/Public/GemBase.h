@@ -8,9 +8,12 @@
 #include "GameBoard.h"
 #include "GemBase.generated.h"
 
+
 class UGemDataAsset;
 class UGemMovementComponent;
 class USpinnerComponent;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FGemMoveToCompleteSignature, class AGemBase*, MovingGem);
 
 /*
 *	Base class for gems on the game board
@@ -41,6 +44,9 @@ public:
 
 	// Delegate to broadcast on MoveTo complete
 	FOnMoveToCompleteSignature OnMoveToCompleteDelegate;
+
+	// Delegate to broadcast on MoveTo complete
+	FGemMoveToCompleteSignature OnGemMoveToCompleteDelegate;
 
 	// Set this gem as selected
 	void SetSelected(bool bInSelected);

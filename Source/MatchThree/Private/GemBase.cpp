@@ -59,8 +59,8 @@ void AGemBase::SetSelected(bool bInSelected)
 
 void AGemBase::HandleMoveToComplete()
 {
-	OnMoveToCompleteDelegate.Broadcast();
-	OnMoveToCompleteDelegate.Clear();
+	OnGemMoveToCompleteDelegate.Broadcast(this);
+	OnGemMoveToCompleteDelegate.Clear();
 }
 
 

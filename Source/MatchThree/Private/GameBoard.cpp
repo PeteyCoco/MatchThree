@@ -45,13 +45,22 @@ void AGameBoard::CascadeTimerCallback()
 	if (CascadeCurrentRow < BoardHeight)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Cascading row %d"), CascadeCurrentRow);
-		SettleRow(CascadeCurrentRow);
+		CascadeRow(CascadeCurrentRow);
 		CascadeCurrentRow++;
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ending board cascade"), CascadeCurrentRow);
 		GetWorld()->GetTimerManager().ClearTimer(CascadeTimer);
+	}
+}
+
+void AGameBoard::CheckCascadeRowComplete(AGemBase* InGem)
+{
+	const int Row = InternalBoard->GetBoardLocation(InGem).Y;
+	if (IsRowInPosition(Row))
+	{
+		RowCascadeCompleteDelegate.Broadcast(Row);
 	}
 }
 
@@ -99,8 +108,8 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 	const FBoardLocation SecondGemBoardLocation = InternalBoard->GetBoardLocation(CurrentSwap.SecondGem);
 
 	// Swap the gems' world position
-	CurrentSwap.FirstGem->OnMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::HandleSwapComplete);
-	CurrentSwap.SecondGem->OnMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::HandleSwapComplete);
+	CurrentSwap.FirstGem->OnGemMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::HandleSwapComplete);
+	CurrentSwap.SecondGem->OnGemMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::HandleSwapComplete);
 
 	CurrentSwap.FirstGem->MoveTo(GetWorldLocation(SecondGemBoardLocation));
 	CurrentSwap.SecondGem->MoveTo(GetWorldLocation(FirstGemBoardLocation));
@@ -110,7 +119,7 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 	InternalBoard->SetGem(CurrentSwap.FirstGem, SecondGemBoardLocation);
 }
 
-void AGameBoard::SettleBoard()
+void AGameBoard::CascadeBoard()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Starting cascade"));
 	CascadeCurrentRow = 0;
@@ -121,13 +130,17 @@ void AGameBoard::SettleBoard()
 	GetWorld()->GetTimerManager().SetTimer(CascadeTimer, this, &AGameBoard::CascadeTimerCallback, CascadeRate, true);
 }
 
-void AGameBoard::SettleRow(int Row)
+void AGameBoard::CascadeRow(int Row)
 {
 	TArray<AGemBase*> Gems;
 	InternalBoard->GetGemsInRow(Row, Gems);
 	for (AGemBase* Gem : Gems)
 	{
-		if (Gem) Gem->MoveTo(GetWorldLocation(InternalBoard->GetBoardLocation(Gem)));
+		if (Gem)
+		{
+			Gem->OnGemMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::CheckCascadeRowComplete);
+			Gem->MoveTo(GetWorldLocation(InternalBoard->GetBoardLocation(Gem)));
+		}
 	}
 }
 
@@ -148,7 +161,7 @@ void AGameBoard::FillBoard()
 			InternalBoard->AddGemToTopOfColumn(i, GemToPlace);
 		}
 	}
-	SettleBoard();
+	CascadeBoard();
 }
 
 bool AGameBoard::IsRowInPosition(int Row) const
@@ -159,7 +172,7 @@ bool AGameBoard::IsRowInPosition(int Row) const
 	{
 		const FBoardLocation GemBoardLocation = InternalBoard->GetBoardLocation(Gem);
 		const float DistSquaredToBoardLocation = FVector::DistSquared(GetWorldLocation(GemBoardLocation), Gem->GetActorLocation());
-		if (DistSquaredToBoardLocation > 10.f)
+		if (DistSquaredToBoardLocation > 10.f || Gem->IsMoving())
 		{
 			return false;
 		}
@@ -184,7 +197,7 @@ AGemBase* AGameBoard::SpawnGem(int32 Column, EGemType GemType)
 	return GemToPlace;
 }
 
-void AGameBoard::HandleSwapComplete()
+void AGameBoard::HandleSwapComplete(AGemBase* InGem)
 {
 	// Wait for both gems to stop moving
 	if (CurrentSwap.FirstGem->IsMoving() || CurrentSwap.SecondGem->IsMoving()) return;
