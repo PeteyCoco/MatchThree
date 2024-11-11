@@ -43,9 +43,6 @@ public:
 	bool IsMoving() const { return MovementComponent->IsMoving(); }
 
 	// Delegate to broadcast on MoveTo complete
-	FOnMoveToCompleteSignature OnMoveToCompleteDelegate;
-
-	// Delegate to broadcast on MoveTo complete
 	FGemMoveToCompleteSignature OnGemMoveToCompleteDelegate;
 
 	// Set this gem as selected
