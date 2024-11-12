@@ -61,6 +61,10 @@ void AGameBoard::CheckCascadeRowComplete(AGemBase* InGem)
 	if (IsRowInPosition(Row))
 	{
 		RowCascadeCompleteDelegate.Broadcast(Row);
+		if (Row == BoardHeight - 1)
+		{
+			BoardCascadeCompleteDelegate.Broadcast();
+		}
 	}
 }
 
@@ -106,10 +110,6 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 
 	const FBoardLocation FirstGemBoardLocation = InternalBoard->GetBoardLocation(CurrentSwap.FirstGem);
 	const FBoardLocation SecondGemBoardLocation = InternalBoard->GetBoardLocation(CurrentSwap.SecondGem);
-
-	// Swap the gems' world position
-	CurrentSwap.FirstGem->OnGemMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::HandleSwapComplete);
-	CurrentSwap.SecondGem->OnGemMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::HandleSwapComplete);
 
 	CurrentSwap.FirstGem->MoveTo(GetWorldLocation(SecondGemBoardLocation));
 	CurrentSwap.SecondGem->MoveTo(GetWorldLocation(FirstGemBoardLocation));
@@ -170,6 +170,8 @@ bool AGameBoard::IsRowInPosition(int Row) const
 	InternalBoard->GetGemsInRow(Row, GemsInRow);
 	for (AGemBase* Gem : GemsInRow)
 	{
+		if (!Gem) continue;
+
 		const FBoardLocation GemBoardLocation = InternalBoard->GetBoardLocation(Gem);
 		const float DistSquaredToBoardLocation = FVector::DistSquared(GetWorldLocation(GemBoardLocation), Gem->GetActorLocation());
 		if (DistSquaredToBoardLocation > 10.f || Gem->IsMoving())
@@ -178,6 +180,12 @@ bool AGameBoard::IsRowInPosition(int Row) const
 		}
 	}
 	return true;
+}
+
+void AGameBoard::GetMatches(const FBoardLocation& InLocation, TArray<AGemBase*> OutMatch) const
+{
+	AGemBase* InGem = InternalBoard->GetGem(InLocation);
+	return InternalBoard->GetMatches(InGem, OutMatch);
 }
 
 AGemBase* AGameBoard::SpawnGem(int32 Column, EGemType GemType)
@@ -193,51 +201,35 @@ AGemBase* AGameBoard::SpawnGem(int32 Column, EGemType GemType)
 	AGemBase* GemToPlace = GetWorld()->SpawnActorDeferred<AGemBase>(GemActorClass, SpawnTransform);
 	GemToPlace->SetData(GemData[GemType]);
 	GemToPlace->SetActorScale3D(FVector(GemScale, GemScale, GemScale));
+	GemToPlace->OnGemMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::HandleGemMoveToComplete);
 	GemToPlace->FinishSpawning(SpawnTransform);
 	return GemToPlace;
 }
 
-void AGameBoard::HandleSwapComplete(AGemBase* InGem)
+void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 {
-	// Wait for both gems to stop moving
-	if (CurrentSwap.FirstGem->IsMoving() || CurrentSwap.SecondGem->IsMoving()) return;
-
+	// Look for matches
 	TArray<AGemBase*> Matches;
-	InternalBoard->GetMatches(CurrentSwap.FirstGem, Matches);
-	InternalBoard->GetMatches(CurrentSwap.SecondGem, Matches);
+	InternalBoard->GetMatches(InGem, Matches);
 
-	if (Matches.Num() < 3)
+	if (!Matches.IsEmpty())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Swap complete and no matches"));
-
-		// Undo the current swap
-		const FBoardLocation FirstGemBoardLocation = InternalBoard->GetBoardLocation(CurrentSwap.FirstGem);
-		const FBoardLocation SecondGemBoardLocation = InternalBoard->GetBoardLocation(CurrentSwap.SecondGem);
-
-		// Swap the gems' world position
-		CurrentSwap.FirstGem->MoveTo(GetWorldLocation(SecondGemBoardLocation));
-		CurrentSwap.SecondGem->MoveTo(GetWorldLocation(FirstGemBoardLocation));
-
-		// Swap internal board positions
-		InternalBoard->SetGem(CurrentSwap.SecondGem, FirstGemBoardLocation);
-		InternalBoard->SetGem(CurrentSwap.FirstGem, SecondGemBoardLocation);
-
-		// Clear the current swap
+		for (AGemBase* Gem : Matches)
+		{
+			InternalBoard->Remove(Gem);
+			DestroyGem(Gem);
+		}
 		CurrentSwap.FirstGem = nullptr;
 		CurrentSwap.SecondGem = nullptr;
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Swap complete and matches"));
-
-		// Destroy matches
-		for (AGemBase* Gem : Matches)
-		{
-			DestroyGem(Gem);
+		if (CurrentSwap.FirstGem && !CurrentSwap.FirstGem->IsMoving() && CurrentSwap.SecondGem && !CurrentSwap.SecondGem->IsMoving())
+		{ 
+			SwapGems(CurrentSwap.SecondGem, CurrentSwap.FirstGem);
+			CurrentSwap.FirstGem = nullptr;
+			CurrentSwap.SecondGem = nullptr;
 		}
-
-		InternalBoard->Collapse();
-		FillBoard();
 	}
 }
 

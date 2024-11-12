@@ -52,7 +52,7 @@ public:
 
 	void SetGem(AGemBase* Gem, const FBoardLocation& BoardLocation);
 
-	FBoardLocation GetBoardLocation(AGemBase* Gem) const;
+	FBoardLocation GetBoardLocation(const AGemBase* Gem) const;
 
 	// Get all gems that form a match with the given gem
 	void GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray) const;
@@ -77,6 +77,9 @@ public:
 
 	// Add a gem to the top of the column. Returns false if failed
 	bool AddGemToTopOfColumn(int Column, AGemBase* Gem);
+
+	// Remove the given gem from the board
+	void Remove(AGemBase* InGem);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")

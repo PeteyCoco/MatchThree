@@ -11,7 +11,10 @@ class AGemBase;
 class UGemDataAsset;
 class UInternalBoard;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBoardCascadeCompleteSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRowCascadeCompleteSignature, int, Row);
+
+
 
 UENUM()
 enum class EGemType : uint8
@@ -82,6 +85,10 @@ public:
 	// Move the board gems in a given row to their positions
 	void CascadeRow(int Row);
 
+	// Delegate that broadcasts when the board has finished cascading
+	UPROPERTY(BlueprintAssignable)
+	FBoardCascadeCompleteSignature BoardCascadeCompleteDelegate;
+
 	// Delegate that broadcasts whenever a row has finished cascading
 	UPROPERTY(BlueprintAssignable)
 	FRowCascadeCompleteSignature RowCascadeCompleteDelegate;
@@ -91,6 +98,13 @@ public:
 
 	// Return true if the gems in the given row are near their board positions
 	bool IsRowInPosition(int Row) const;
+
+	// Return an array of gems that form a match with the gem at the given location
+	void GetMatches(const FBoardLocation& InLocation, TArray<AGemBase*> OutMatch) const;
+
+	// Logic to execute when a gem has finished a MoveTo
+	UFUNCTION()
+	void HandleGemMoveToComplete(AGemBase* InGem);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
@@ -118,9 +132,6 @@ protected:
 	// Scale of the gems
 	UPROPERTY(EditAnywhere, Category = "Gem Properties")
 	float GemScale = 0.9f;
-
-	UFUNCTION()
-	void HandleSwapComplete(AGemBase* InGem);
 
 	FSwapPair CurrentSwap;
 

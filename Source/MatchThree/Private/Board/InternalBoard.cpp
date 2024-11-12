@@ -34,7 +34,7 @@ AGemBase* UInternalBoard::GetGem(const FBoardLocation& BoardLocation)
 	return BoardData[BoardLocation.X][BoardLocation.Y];
 }
 
-FBoardLocation UInternalBoard::GetBoardLocation(AGemBase* Gem) const
+FBoardLocation UInternalBoard::GetBoardLocation(const AGemBase* Gem) const
 {
 	if (!Gem)
 	{
@@ -75,7 +75,7 @@ void UInternalBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray) cons
 	for (int i = GemBoardLocation.X - 1; XMin <= i; i--)
 	{
 		AGemBase* CandidateGem = GetGem({ i,GemBoardLocation.Y });
-		if (CandidateGem->GetType() == Gem->GetType())
+		if (CandidateGem && CandidateGem->GetType() == Gem->GetType())
 		{
 			Matches.Add(CandidateGem);
 		}
@@ -88,7 +88,7 @@ void UInternalBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray) cons
 	for (int i = GemBoardLocation.X + 1; i <= XMax; i++)
 	{
 		AGemBase* CandidateGem = GetGem({ i,GemBoardLocation.Y });
-		if (CandidateGem->GetType() == Gem->GetType())
+		if (CandidateGem && CandidateGem->GetType() == Gem->GetType())
 		{
 			Matches.Add(CandidateGem);
 		}
@@ -101,7 +101,6 @@ void UInternalBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray) cons
 	// Check that at least 3 matches occured
 	if (Matches.Num() >= 3)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Match of length %d along the horizontal"), Matches.Num());
 		OutArray.Append(Matches);
 		return;
 	}
@@ -117,7 +116,7 @@ void UInternalBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray) cons
 	for (int i = GemBoardLocation.Y - 1; YMin <= i; i--)
 	{
 		AGemBase* CandidateGem = GetGem({ GemBoardLocation.X,i });
-		if (CandidateGem->GetType() == Gem->GetType())
+		if (CandidateGem && CandidateGem->GetType() == Gem->GetType())
 		{
 			Matches.Add(CandidateGem);
 		}
@@ -130,7 +129,7 @@ void UInternalBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray) cons
 	for (int i = GemBoardLocation.Y + 1; i <= YMax; i++)
 	{
 		AGemBase* CandidateGem = GetGem({ GemBoardLocation.X,i });
-		if (CandidateGem->GetType() == Gem->GetType())
+		if (CandidateGem && CandidateGem->GetType() == Gem->GetType())
 		{
 			Matches.Add(CandidateGem);
 		}
@@ -143,7 +142,6 @@ void UInternalBoard::GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray) cons
 	// Check that at least 3 matches occured
 	if (Matches.Num() >= 3)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Match of length %d along the vertical"), Matches.Num());
 		OutArray.Append(Matches);
 	}
 }
@@ -245,6 +243,12 @@ bool UInternalBoard::AddGemToTopOfColumn(int Column, AGemBase* Gem)
 	}
 	SetGem(Gem, { Column, BoardHeight - SpacesAtTop(Column)});
 	return true;
+}
+
+void UInternalBoard::Remove(AGemBase* InGem)
+{
+	const FBoardLocation BoardLocation = GetBoardLocation(InGem);
+	SetGem(nullptr, BoardLocation);
 }
 
 bool operator==(const FBoardLocation& A, const FBoardLocation& B)
