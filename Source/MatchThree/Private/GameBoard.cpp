@@ -164,6 +164,19 @@ void AGameBoard::FillBoard()
 	CascadeBoard();
 }
 
+bool AGameBoard::IsInPosition(AGemBase* InGem) const
+{
+	if (!InGem) { return false; }
+
+	const FBoardLocation GemBoardLocation = InternalBoard->GetBoardLocation(InGem);
+	const float DistSquaredToBoardLocation = FVector::DistSquared(GetWorldLocation(GemBoardLocation), InGem->GetActorLocation());
+	if (DistSquaredToBoardLocation > 10.f || InGem->IsMoving())
+	{
+		return false;
+	}
+	return true;
+}
+
 bool AGameBoard::IsRowInPosition(int Row) const
 {
 	TArray<AGemBase*> GemsInRow;
@@ -224,7 +237,7 @@ void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 	}
 	else
 	{
-		if (CurrentSwap.FirstGem && !CurrentSwap.FirstGem->IsMoving() && CurrentSwap.SecondGem && !CurrentSwap.SecondGem->IsMoving())
+		if (IsInPosition(CurrentSwap.FirstGem) && IsInPosition(CurrentSwap.SecondGem))
 		{ 
 			SwapGems(CurrentSwap.SecondGem, CurrentSwap.FirstGem);
 			CurrentSwap.FirstGem = nullptr;

@@ -96,6 +96,9 @@ public:
 	// Spawn gems at the top of the board to fill in empty space
 	void FillBoard();
 
+	// Return true if the gems is near its board positions and not moving
+	bool IsInPosition(AGemBase* InGem) const;
+
 	// Return true if the gems in the given row are near their board positions
 	bool IsRowInPosition(int Row) const;
 
