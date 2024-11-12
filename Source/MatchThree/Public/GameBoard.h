@@ -87,6 +87,8 @@ public:
 
 	void MoveIntoPosition(const FBoardLocation& BoardLocation);
 
+	void MoveGemToBoardLocation(AGemBase* Gem, const FBoardLocation& NewBoardLocation);
+
 	// Delegate that broadcasts when the board has finished cascading
 	UPROPERTY(BlueprintAssignable)
 	FBoardCascadeCompleteSignature BoardCascadeCompleteDelegate;
@@ -100,12 +102,17 @@ public:
 	// Return true if the gems in the given row are near their board positions
 	bool IsRowInPosition(int Row) const;
 
+	bool IsEmpty(const FBoardLocation& InLocation) const;
+
 	// Return an array of gems that form a match with the gem at the given location
 	void GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const;
 
 	// Logic to execute when a gem has finished a MoveTo
 	UFUNCTION()
 	void HandleGemMoveToComplete(AGemBase* InGem);
+
+	// Get the board location above the next lowest gem
+	FBoardLocation GetNextEmptyLocationBelow(AGemBase* Gem) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")

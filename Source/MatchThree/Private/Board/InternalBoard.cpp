@@ -76,32 +76,6 @@ bool UInternalBoard::AreNeighbours(AGemBase* GemA, AGemBase* GemB) const
 	return false;
 }
 
-void UInternalBoard::Collapse()
-{
-	for (int32 ColIndex = 0; ColIndex < BoardWidth; ++ColIndex)
-	{
-		int NumberOfGaps = 0;
-		for (int32 RowIndex = 0; RowIndex < BoardHeight; ++RowIndex)
-		{
-			FBoardLocation CurrentLocation{ ColIndex, RowIndex };
-
-			if (IsEmpty(CurrentLocation))
-			{
-				NumberOfGaps++;
-			}
-			else
-			{
-				FBoardLocation BelowLocation{ ColIndex, RowIndex - NumberOfGaps };
-				if (CurrentLocation != BelowLocation)
-				{
-					SetGem(GetGem(CurrentLocation), BelowLocation);
-					SetGem(nullptr, CurrentLocation);
-				}
-			}
-		}
-	}
-}
-
 bool UInternalBoard::IsEmpty(const FBoardLocation& BoardLocation) const
 {
 	return GetGem(BoardLocation) == nullptr;

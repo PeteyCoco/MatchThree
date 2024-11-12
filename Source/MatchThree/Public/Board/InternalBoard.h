@@ -57,9 +57,6 @@ public:
 	// Return true if the gems are next to eachother
 	bool AreNeighbours(AGemBase* GemA, AGemBase* GemB) const;
 
-	// Move gems to their lowest positions in each column
-	void Collapse();
-
 	// Return true if the given location is empty
 	bool IsEmpty(const FBoardLocation& BoardLocation) const;
 

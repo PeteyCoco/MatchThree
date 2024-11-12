@@ -125,6 +125,17 @@ void AGameBoard::MoveIntoPosition(const FBoardLocation& BoardLocation)
 	}
 }
 
+void AGameBoard::MoveGemToBoardLocation(AGemBase* Gem, const FBoardLocation& NewBoardLocation)
+{
+	if (Gem)
+	{
+		const FBoardLocation OldBoardLocation = InternalBoard->GetBoardLocation(Gem);
+		InternalBoard->SetGem(nullptr, OldBoardLocation);
+		InternalBoard->SetGem(Gem, NewBoardLocation);
+		Gem->MoveTo(GetWorldLocation(NewBoardLocation));
+	}
+}
+
 void AGameBoard::FillBoard()
 {
 	TArray<EGemType> GemTypes;
@@ -174,6 +185,11 @@ bool AGameBoard::IsRowInPosition(int Row) const
 		}
 	}
 	return true;
+}
+
+bool AGameBoard::IsEmpty(const FBoardLocation& InLocation) const
+{
+	return InternalBoard->IsEmpty(InLocation);
 }
 
 void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
@@ -301,7 +317,6 @@ void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 		CurrentSwap.FirstGem = nullptr;
 		CurrentSwap.SecondGem = nullptr;
 
-		InternalBoard->Collapse();
 		CascadeBoard();
 	}
 	else
@@ -313,5 +328,10 @@ void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 			CurrentSwap.SecondGem = nullptr;
 		}
 	}
+}
+
+FBoardLocation AGameBoard::GetNextEmptyLocationBelow(AGemBase* Gem) const
+{
+	return InternalBoard->GetNextEmptyLocationBelow(Gem);
 }
 
