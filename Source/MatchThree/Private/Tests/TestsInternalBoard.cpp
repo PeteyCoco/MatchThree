@@ -58,6 +58,18 @@ bool FMatchThreeTest::RunTest(const FString& Parameters)
 		TestEqual(TEXT("Column 0 has 6 spaces at the top"), InternalBoard->SpacesAtTop(0), 6);
 	}
 
+	{
+		UInternalBoard* InternalBoard = NewObject<UInternalBoard>();
+		InternalBoard->Initialize(8, 8);
+		InternalBoard->SetGem(GemA, { 1,0 });
+		InternalBoard->SetGem(GemB, { 1,2 });
+		InternalBoard->SetGem(GemC, { 1,5 });
+
+		TestEqual(TEXT("The free space below GemA is {1,0}"), InternalBoard->GetNextEmptyLocationBelow(GemA), FBoardLocation(1,0));
+		TestEqual(TEXT("The free space below GemB is {1,1}"), InternalBoard->GetNextEmptyLocationBelow(GemB), FBoardLocation(1,1));
+		TestEqual(TEXT("The free space below GemC is {1,3}"), InternalBoard->GetNextEmptyLocationBelow(GemC), FBoardLocation(1,3));
+
+	}
 
 	return true;
 }

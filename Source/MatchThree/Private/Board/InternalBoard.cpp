@@ -146,6 +146,21 @@ int UInternalBoard::SpacesAtTop(int Column) const
 	return Spaces;
 }
 
+FBoardLocation UInternalBoard::GetNextEmptyLocationBelow(AGemBase* Gem) const
+{
+	FBoardLocation CandidateBoardLocation = GetBoardLocation(Gem);
+	while (CandidateBoardLocation.Y > 0)
+	{
+		CandidateBoardLocation.Y--;
+		if (!IsEmpty(CandidateBoardLocation))
+		{
+			CandidateBoardLocation.Y++;
+			return CandidateBoardLocation;
+		}
+	}
+	return CandidateBoardLocation;
+}
+
 bool UInternalBoard::AddGemToTopOfColumn(int Column, AGemBase* Gem)
 {
 	if (SpacesAtTop(Column) == 0)

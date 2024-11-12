@@ -72,6 +72,9 @@ public:
 	// Get the number of empty spaces at the top of the column
 	int SpacesAtTop(int Column) const;
 
+	// Get the board location above the next lowest gem
+	FBoardLocation GetNextEmptyLocationBelow(AGemBase* Gem) const;
+
 	// Add a gem to the top of the column. Returns false if failed
 	bool AddGemToTopOfColumn(int Column, AGemBase* Gem);
 
