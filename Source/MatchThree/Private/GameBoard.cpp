@@ -108,15 +108,15 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 	CurrentSwap.FirstGem = GemA;
 	CurrentSwap.SecondGem = GemB;
 
-	const FBoardLocation FirstGemBoardLocation = InternalBoard->GetBoardLocation(CurrentSwap.FirstGem);
-	const FBoardLocation SecondGemBoardLocation = InternalBoard->GetBoardLocation(CurrentSwap.SecondGem);
+	const FBoardLocation FirstInLocation = InternalBoard->GetBoardLocation(CurrentSwap.FirstGem);
+	const FBoardLocation SecondInLocation = InternalBoard->GetBoardLocation(CurrentSwap.SecondGem);
 
-	CurrentSwap.FirstGem->MoveTo(GetWorldLocation(SecondGemBoardLocation));
-	CurrentSwap.SecondGem->MoveTo(GetWorldLocation(FirstGemBoardLocation));
+	CurrentSwap.FirstGem->MoveTo(GetWorldLocation(SecondInLocation));
+	CurrentSwap.SecondGem->MoveTo(GetWorldLocation(FirstInLocation));
 
 	// Swap internal board positions
-	InternalBoard->SetGem(CurrentSwap.SecondGem, FirstGemBoardLocation);
-	InternalBoard->SetGem(CurrentSwap.FirstGem, SecondGemBoardLocation);
+	InternalBoard->SetGem(CurrentSwap.SecondGem, FirstInLocation);
+	InternalBoard->SetGem(CurrentSwap.FirstGem, SecondInLocation);
 }
 
 void AGameBoard::CascadeBoard()
@@ -168,8 +168,8 @@ bool AGameBoard::IsInPosition(AGemBase* InGem) const
 {
 	if (!InGem) { return false; }
 
-	const FBoardLocation GemBoardLocation = InternalBoard->GetBoardLocation(InGem);
-	const float DistSquaredToBoardLocation = FVector::DistSquared(GetWorldLocation(GemBoardLocation), InGem->GetActorLocation());
+	const FBoardLocation InLocation = InternalBoard->GetBoardLocation(InGem);
+	const float DistSquaredToBoardLocation = FVector::DistSquared(GetWorldLocation(InLocation), InGem->GetActorLocation());
 	if (DistSquaredToBoardLocation > 10.f || InGem->IsMoving())
 	{
 		return false;
@@ -185,8 +185,8 @@ bool AGameBoard::IsRowInPosition(int Row) const
 	{
 		if (!Gem) continue;
 
-		const FBoardLocation GemBoardLocation = InternalBoard->GetBoardLocation(Gem);
-		const float DistSquaredToBoardLocation = FVector::DistSquared(GetWorldLocation(GemBoardLocation), Gem->GetActorLocation());
+		const FBoardLocation InLocation = InternalBoard->GetBoardLocation(Gem);
+		const float DistSquaredToBoardLocation = FVector::DistSquared(GetWorldLocation(InLocation), Gem->GetActorLocation());
 		if (DistSquaredToBoardLocation > 10.f || Gem->IsMoving())
 		{
 			return false;
@@ -195,10 +195,95 @@ bool AGameBoard::IsRowInPosition(int Row) const
 	return true;
 }
 
-void AGameBoard::GetMatches(const FBoardLocation& InLocation, TArray<AGemBase*> OutMatch) const
+void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
 {
-	AGemBase* InGem = InternalBoard->GetGem(InLocation);
-	return InternalBoard->GetMatches(InGem, OutMatch);
+	if (!InGem)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Tried matching to a nullptr gem!"));
+		return;
+	}
+	const FBoardLocation InLocation = InternalBoard->GetBoardLocation(InGem);
+
+	const int XMin = FMath::Max(0, InLocation.X - 2);
+	const int XMax = FMath::Min(InLocation.X + 2, BoardWidth - 1);
+
+	// Check horizontal matches
+	TArray<AGemBase*> Matches;
+	Matches.Add(InGem);
+
+	// Grow the left
+	for (int i = InLocation.X - 1; XMin <= i; i--)
+	{
+		AGemBase* CandidateGem = GetGem({ i,InLocation.Y });
+		if (IsInPosition(CandidateGem) && CandidateGem && CandidateGem->GetType() == InGem->GetType())
+		{
+			Matches.Add(CandidateGem);
+		}
+		else
+		{
+			break;
+		}
+	}
+	// Grow the right
+	for (int i = InLocation.X + 1; i <= XMax; i++)
+	{
+		AGemBase* CandidateGem = GetGem({ i,InLocation.Y });
+		if (IsInPosition(CandidateGem) && CandidateGem && CandidateGem->GetType() == InGem->GetType())
+		{
+			Matches.Add(CandidateGem);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	// Check that at least 3 matches occured
+	if (Matches.Num() >= 3)
+	{
+		OutMatch.Append(Matches);
+		return;
+	}
+
+	// Check vertical matches
+	const int YMin = FMath::Max(0, InLocation.Y - 2);
+	const int YMax = FMath::Min(InLocation.Y + 2, BoardHeight - 1);
+
+	Matches.Empty();
+	Matches.Add(InGem);
+
+	// Grow the bottom
+	for (int i = InLocation.Y - 1; YMin <= i; i--)
+	{
+		AGemBase* CandidateGem = GetGem({ InLocation.X,i });
+		if (IsInPosition(CandidateGem) && CandidateGem && CandidateGem->GetType() == InGem->GetType())
+		{
+			Matches.Add(CandidateGem);
+		}
+		else
+		{
+			break;
+		}
+	}
+	// Grow the top
+	for (int i = InLocation.Y + 1; i <= YMax; i++)
+	{
+		AGemBase* CandidateGem = GetGem({ InLocation.X,i });
+		if (IsInPosition(CandidateGem) && CandidateGem && CandidateGem->GetType() == InGem->GetType())
+		{
+			Matches.Add(CandidateGem);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	// Check that at least 3 matches occured
+	if (Matches.Num() >= 3)
+	{
+		OutMatch.Append(Matches);
+	}
 }
 
 AGemBase* AGameBoard::SpawnGem(int32 Column, EGemType GemType)
@@ -223,7 +308,7 @@ void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 {
 	// Look for matches
 	TArray<AGemBase*> Matches;
-	InternalBoard->GetMatches(InGem, Matches);
+	GetMatches(InGem, Matches);
 
 	if (!Matches.IsEmpty())
 	{

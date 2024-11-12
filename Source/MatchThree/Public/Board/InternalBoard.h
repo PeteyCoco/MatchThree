@@ -54,9 +54,6 @@ public:
 
 	FBoardLocation GetBoardLocation(const AGemBase* Gem) const;
 
-	// Get all gems that form a match with the given gem
-	void GetMatches(AGemBase* Gem, TArray<AGemBase*>& OutArray) const;
-
 	// Return true if the gems are next to eachother
 	bool AreNeighbours(AGemBase* GemA, AGemBase* GemB) const;
 

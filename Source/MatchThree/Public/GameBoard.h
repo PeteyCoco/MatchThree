@@ -103,7 +103,7 @@ public:
 	bool IsRowInPosition(int Row) const;
 
 	// Return an array of gems that form a match with the gem at the given location
-	void GetMatches(const FBoardLocation& InLocation, TArray<AGemBase*> OutMatch) const;
+	void GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const;
 
 	// Logic to execute when a gem has finished a MoveTo
 	UFUNCTION()
