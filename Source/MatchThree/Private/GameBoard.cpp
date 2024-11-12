@@ -35,8 +35,6 @@ void AGameBoard::InitializeInternalBoard()
 void AGameBoard::DestroyGem(AGemBase* Gem)
 {
 	if (!Gem) return;
-
-	InternalBoard->SetGem(nullptr, InternalBoard->GetBoardLocation(Gem));
 	Gem->Destroy();
 }
 
@@ -319,6 +317,9 @@ void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 		}
 		CurrentSwap.FirstGem = nullptr;
 		CurrentSwap.SecondGem = nullptr;
+
+		InternalBoard->Collapse();
+		CascadeBoard();
 	}
 	else
 	{
