@@ -7,6 +7,7 @@
 #include "GemBase.h"
 #include "DrawDebugHelpers.h"
 #include "TimerManager.h"
+#include "Board/ColumnCascader.h"
 
 AGameBoard::AGameBoard()
 {
@@ -38,33 +39,7 @@ void AGameBoard::DestroyGem(AGemBase* Gem)
 	Gem->Destroy();
 }
 
-void AGameBoard::CascadeTimerCallback()
-{
-	if (CascadeCurrentRow < BoardHeight)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Cascading row %d"), CascadeCurrentRow);
-		CascadeRow(CascadeCurrentRow);
-		CascadeCurrentRow++;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Ending board cascade"), CascadeCurrentRow);
-		GetWorld()->GetTimerManager().ClearTimer(CascadeTimer);
-	}
-}
 
-void AGameBoard::CheckCascadeRowComplete(AGemBase* InGem)
-{
-	const int Row = InternalBoard->GetBoardLocation(InGem).Y;
-	if (IsRowInPosition(Row))
-	{
-		RowCascadeCompleteDelegate.Broadcast(Row);
-		if (Row == BoardHeight - 1)
-		{
-			BoardCascadeCompleteDelegate.Broadcast();
-		}
-	}
-}
 
 void AGameBoard::ResetBoard()
 {
@@ -94,6 +69,16 @@ int32 AGameBoard::GetColumnHeight(int32 Column) const
 	return Height;
 }
 
+int32 AGameBoard::GetBoardWidth() const
+{
+	return InternalBoard->GetBoardHeight();
+}
+
+int32 AGameBoard::GetBoardHeight() const
+{
+	return InternalBoard->GetBoardHeight();
+}
+
 bool AGameBoard::CanSwapGems(AGemBase* GemA, AGemBase* GemB) const
 {
 	return InternalBoard->AreNeighbours(GemA, GemB);
@@ -119,26 +104,24 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 
 void AGameBoard::CascadeBoard()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Starting cascade"));
-	CascadeCurrentRow = 0;
-	while (IsRowInPosition(CascadeCurrentRow))
+	for (int i = 0; i < BoardWidth; i++)
 	{
-		CascadeCurrentRow++;
+		CascadeColumn(i);
 	}
-	GetWorld()->GetTimerManager().SetTimer(CascadeTimer, this, &AGameBoard::CascadeTimerCallback, CascadeRate, true);
 }
 
-void AGameBoard::CascadeRow(int Row)
+void AGameBoard::CascadeColumn(int Column)
 {
-	TArray<AGemBase*> Gems;
-	InternalBoard->GetGemsInRow(Row, Gems);
-	for (AGemBase* Gem : Gems)
+	UColumnCascader* ColumnCascader = NewObject<UColumnCascader>(this);
+	ColumnCascader->Execute(this, Column, CascadeRate);
+}
+
+void AGameBoard::MoveIntoPosition(const FBoardLocation& BoardLocation)
+{
+	AGemBase* Gem = GetGem(BoardLocation);
+	if (Gem)
 	{
-		if (Gem)
-		{
-			Gem->OnGemMoveToCompleteDelegate.AddUniqueDynamic(this, &AGameBoard::CheckCascadeRowComplete);
-			Gem->MoveTo(GetWorldLocation(InternalBoard->GetBoardLocation(Gem)));
-		}
+		Gem->MoveTo(GetWorldLocation(BoardLocation));
 	}
 }
 

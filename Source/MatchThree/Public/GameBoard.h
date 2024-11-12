@@ -12,9 +12,6 @@ class UGemDataAsset;
 class UInternalBoard;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBoardCascadeCompleteSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRowCascadeCompleteSignature, int, Row);
-
-
 
 UENUM()
 enum class EGemType : uint8
@@ -73,6 +70,9 @@ public:
 	// Get the number of gems at the bottom of the column
 	int32 GetColumnHeight(int32 Column) const;
 
+	int32 GetBoardWidth() const;
+	int32 GetBoardHeight() const;
+
 	// Return true if the given gems can be swapped
 	bool CanSwapGems(AGemBase* GemA, AGemBase* GemB) const;
 
@@ -82,16 +82,14 @@ public:
 	// Move the board gems to their board positions
 	void CascadeBoard();
 
-	// Move the board gems in a given row to their positions
-	void CascadeRow(int Row);
+	// Move column of gems into position
+	void CascadeColumn(int Column);
+
+	void MoveIntoPosition(const FBoardLocation& BoardLocation);
 
 	// Delegate that broadcasts when the board has finished cascading
 	UPROPERTY(BlueprintAssignable)
 	FBoardCascadeCompleteSignature BoardCascadeCompleteDelegate;
-
-	// Delegate that broadcasts whenever a row has finished cascading
-	UPROPERTY(BlueprintAssignable)
-	FRowCascadeCompleteSignature RowCascadeCompleteDelegate;
 
 	// Spawn gems at the top of the board to fill in empty space
 	void FillBoard();
@@ -145,16 +143,6 @@ protected:
 
 	void DestroyGem(AGemBase* Gem);
 
-	FTimerHandle CascadeTimer;
-
 	UPROPERTY(EditAnywhere, Category = "Board Properties")
 	float CascadeRate = 1.f;
-
-	int CascadeCurrentRow = 0;
-	UFUNCTION()
-	void CascadeTimerCallback();
-
-	UFUNCTION()
-	void CheckCascadeRowComplete(AGemBase* InGem);
-
 };

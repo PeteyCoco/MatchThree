@@ -77,6 +77,9 @@ public:
 
 	// Remove the given gem from the board
 	void Remove(AGemBase* InGem);
+	 
+	int32 GetBoardWidth() { return BoardWidth; }
+	int32 GetBoardHeight() { return BoardHeight; }
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
