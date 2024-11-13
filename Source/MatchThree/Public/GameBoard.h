@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Engine/TimerHandle.h"
+#include "GemBase.h"
+#include "Board/BoardColumn.h"
 #include "GameBoard.generated.h"
 
 class AGemBase;
@@ -12,20 +14,6 @@ class UGemDataAsset;
 class UInternalBoard;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBoardCascadeCompleteSignature);
-
-UENUM()
-enum class EGemType : uint8
-{
-	Capsule,
-	Cone,
-	Icosphere,
-	Sphere,
-	Square,
-	Triangle,
-	Torus,
-
-	MAX
-};
 
 /* The gems involved in a swap action */
 USTRUCT()
@@ -36,6 +24,36 @@ struct FSwapPair
 	AGemBase* FirstGem;
 	AGemBase* SecondGem;
 };
+
+/*
+* Struct representing a coordinate on the board
+*/
+USTRUCT(Blueprintable)
+struct FBoardLocation
+{
+	GENERATED_BODY()
+
+	FBoardLocation()
+	{
+		X = 0;
+		Y = 0;
+	}
+	FBoardLocation(int InX, int InY)
+	{
+		X = InX;
+		Y = InY;
+	}
+
+	UPROPERTY()
+	int32 X = 0;
+
+	UPROPERTY()
+	int32 Y = 0;
+
+	friend bool operator==(const FBoardLocation& A, const FBoardLocation& B);
+};
+
+
 
 /*
 * Base class for the game board in a match three game
@@ -63,12 +81,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game Board")
 	AGemBase* GetGem(const FBoardLocation& InLocation) const;
 
+	// Set the gem at to the given location
+	void SetGem(AGemBase* Gem, const FBoardLocation& BoardLocation);
+
+	// Returns true if the gem is on the board
+	bool ContainsGem(AGemBase* InGem) const;
+
 	// Get the world location of the given board location
 	UFUNCTION(BlueprintCallable, Category = "Game Board")
 	FVector GetWorldLocation(const FBoardLocation& InLocation) const;
-
-	// Get the number of gems at the bottom of the column
-	int32 GetColumnHeight(int32 Column) const;
 
 	// Get the number of gems int the column
 	int32 NumberOfGems(int32 Column) const;
@@ -102,9 +123,6 @@ public:
 	// Return true if the gems is near its board positions and not moving
 	bool IsInPosition(AGemBase* InGem) const;
 
-	// Return true if the gems in the given row are near their board positions
-	bool IsRowInPosition(int Row) const;
-
 	bool IsEmpty(const FBoardLocation& InLocation) const;
 
 	// Return an array of gems that form a match with the gem at the given location
@@ -130,6 +148,11 @@ public:
 
 	// Spawn a gem into a column and move it down
 	void SpawnGemInColumn(int32 Column);
+
+	FBoardLocation GetBoardLocation(const AGemBase* Gem) const;
+
+	// Remove the given gem from the board
+	void Remove(AGemBase* InGem);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
@@ -160,15 +183,10 @@ protected:
 
 	FSwapPair CurrentSwap;
 
-	UPROPERTY(VisibleInstanceOnly, Category = "Internal Board")
-	UInternalBoard* InternalBoard;
-
-	void InitializeInternalBoard();
-
 	void DestroyGem(AGemBase* Gem);
 
 	UPROPERTY(EditAnywhere, Category = "Board Properties")
 	float CascadeRate = 1.f;
 
-	TMap<int32, TArray<EGemType>> GemsToSpawn;
+	TArray<struct FBoardColumn> Columns;
 };

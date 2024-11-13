@@ -3,11 +3,11 @@
 
 #include "GameBoard.h"
 
-#include "Board/InternalBoard.h"
 #include "GemBase.h"
 #include "DrawDebugHelpers.h"
 #include "TimerManager.h"
 #include "Board/ColumnCascader.h"
+#include "Board/BoardColumn.h"
 
 AGameBoard::AGameBoard()
 {
@@ -19,24 +19,12 @@ void AGameBoard::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InternalBoard = NewObject<UInternalBoard>(this);
-	InitializeInternalBoard();
-
-	// Initialize GemsToSpawn map
 	for (int Column = 0; Column < BoardWidth; Column++)
 	{
-		GemsToSpawn.Add(Column, {});
+		Columns.Add(FBoardColumn(BoardHeight));
 	}
 
 	ResetBoard();
-}
-
-void AGameBoard::InitializeInternalBoard()
-{
-	if (InternalBoard)
-	{
-		InternalBoard->Initialize(BoardWidth, BoardHeight);
-	}
 }
 
 void AGameBoard::DestroyGem(AGemBase* Gem)
@@ -45,8 +33,6 @@ void AGameBoard::DestroyGem(AGemBase* Gem)
 	Gem->Destroy();
 }
 
-
-
 void AGameBoard::ResetBoard()
 {
 	FillBoard();
@@ -54,7 +40,21 @@ void AGameBoard::ResetBoard()
 
 AGemBase* AGameBoard::GetGem(const FBoardLocation& InLocation) const
 {
-	return InternalBoard->GetGem(InLocation);
+	return Columns[InLocation.X].GetGem(InLocation.Y);
+}
+
+void AGameBoard::SetGem(AGemBase* Gem, const FBoardLocation& BoardLocation)
+{
+	Columns[BoardLocation.X].SetGem(Gem, BoardLocation.Y);
+}
+
+bool AGameBoard::ContainsGem(AGemBase* InGem) const
+{
+	for (const FBoardColumn& Column : Columns)
+	{
+		if (Column.Contains(InGem)) return true;
+	}
+	return false;
 }
 
 FVector AGameBoard::GetWorldLocation(const FBoardLocation& InLocation) const
@@ -65,34 +65,37 @@ FVector AGameBoard::GetWorldLocation(const FBoardLocation& InLocation) const
 	return WorldPosition;
 }
 
-int32 AGameBoard::GetColumnHeight(int32 Column) const
-{
-	int32 Height = 0;
-	while (Height < BoardHeight && GetGem({ Column, Height }))
-	{
-		++Height;
-	}
-	return Height;
-}
-
 int32 AGameBoard::NumberOfGems(int32 Column) const
 {
-	return InternalBoard->NumberOfGems(Column) + GemsToSpawn[Column].Num();
+	return Columns[Column].NumberOfGems() + Columns[Column].NumberOfGemsToSpawn();
 }
 
 int32 AGameBoard::GetBoardWidth() const
 {
-	return InternalBoard->GetBoardHeight();
+	return BoardWidth;
 }
 
 int32 AGameBoard::GetBoardHeight() const
 {
-	return InternalBoard->GetBoardHeight();
+	return BoardHeight;
 }
 
 bool AGameBoard::CanSwapGems(AGemBase* GemA, AGemBase* GemB) const
 {
-	return InternalBoard->AreNeighbours(GemA, GemB);
+	if (GemA && GemB)
+	{
+		const FBoardLocation GemABoardLocation = GetBoardLocation(GemA);
+		const FBoardLocation GemBBoardLocation = GetBoardLocation(GemB);
+
+		const int XDiff = FMath::Abs(GemABoardLocation.X - GemBBoardLocation.X);
+		const int YDiff = FMath::Abs(GemABoardLocation.Y - GemBBoardLocation.Y);
+
+		const bool bXNeighbours = XDiff == 1 && YDiff == 0;
+		const bool bYNeighbours = XDiff == 0 && YDiff == 1;
+
+		return bXNeighbours || bYNeighbours;
+	}
+	return false;
 }
 
 void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
@@ -102,15 +105,15 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 	CurrentSwap.FirstGem = GemA;
 	CurrentSwap.SecondGem = GemB;
 
-	const FBoardLocation FirstInLocation = InternalBoard->GetBoardLocation(CurrentSwap.FirstGem);
-	const FBoardLocation SecondInLocation = InternalBoard->GetBoardLocation(CurrentSwap.SecondGem);
+	const FBoardLocation FirstInLocation = GetBoardLocation(CurrentSwap.FirstGem);
+	const FBoardLocation SecondInLocation = GetBoardLocation(CurrentSwap.SecondGem);
 
 	CurrentSwap.FirstGem->MoveTo(GetWorldLocation(SecondInLocation));
 	CurrentSwap.SecondGem->MoveTo(GetWorldLocation(FirstInLocation));
 
 	// Swap internal board positions
-	InternalBoard->SetGem(CurrentSwap.SecondGem, FirstInLocation);
-	InternalBoard->SetGem(CurrentSwap.FirstGem, SecondInLocation);
+	SetGem(CurrentSwap.SecondGem, FirstInLocation);
+	SetGem(CurrentSwap.FirstGem, SecondInLocation);
 }
 
 void AGameBoard::CascadeBoard()
@@ -140,12 +143,12 @@ void AGameBoard::MoveGemToBoardLocation(AGemBase* Gem, const FBoardLocation& New
 {
 	if (Gem)
 	{
-		if (InternalBoard->ContainsGem(Gem))
+		if (ContainsGem(Gem))
 		{
-			const FBoardLocation OldBoardLocation = InternalBoard->GetBoardLocation(Gem);
-			InternalBoard->SetGem(nullptr, OldBoardLocation);
+			const FBoardLocation OldBoardLocation = GetBoardLocation(Gem);
+			SetGem(nullptr, OldBoardLocation);
 		}
-		InternalBoard->SetGem(Gem, NewBoardLocation);
+		SetGem(Gem, NewBoardLocation);
 		Gem->MoveTo(GetWorldLocation(NewBoardLocation));
 	}
 }
@@ -159,7 +162,7 @@ bool AGameBoard::IsInPosition(AGemBase* InGem) const
 {
 	if (!InGem) { return false; }
 
-	const FBoardLocation InLocation = InternalBoard->GetBoardLocation(InGem);
+	const FBoardLocation InLocation = GetBoardLocation(InGem);
 	const float DistSquaredToBoardLocation = FVector::DistSquared(GetWorldLocation(InLocation), InGem->GetActorLocation());
 	if (DistSquaredToBoardLocation > 10.f || InGem->IsMoving())
 	{
@@ -168,27 +171,9 @@ bool AGameBoard::IsInPosition(AGemBase* InGem) const
 	return true;
 }
 
-bool AGameBoard::IsRowInPosition(int Row) const
-{
-	TArray<AGemBase*> GemsInRow;
-	InternalBoard->GetGemsInRow(Row, GemsInRow);
-	for (AGemBase* Gem : GemsInRow)
-	{
-		if (!Gem) continue;
-
-		const FBoardLocation InLocation = InternalBoard->GetBoardLocation(Gem);
-		const float DistSquaredToBoardLocation = FVector::DistSquared(GetWorldLocation(InLocation), Gem->GetActorLocation());
-		if (DistSquaredToBoardLocation > 10.f || Gem->IsMoving())
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
 bool AGameBoard::IsEmpty(const FBoardLocation& InLocation) const
 {
-	return InternalBoard->IsEmpty(InLocation);
+	return Columns[InLocation.X].IsEmpty(InLocation.Y);
 }
 
 void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
@@ -198,7 +183,7 @@ void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
 		UE_LOG(LogTemp, Error, TEXT("Tried matching to a nullptr gem!"));
 		return;
 	}
-	const FBoardLocation InLocation = InternalBoard->GetBoardLocation(InGem);
+	const FBoardLocation InLocation = GetBoardLocation(InGem);
 
 	const int XMin = FMath::Max(0, InLocation.X - 2);
 	const int XMax = FMath::Min(InLocation.X + 2, BoardWidth - 1);
@@ -284,7 +269,7 @@ void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
 
 AGemBase* AGameBoard::SpawnGem(int32 Column, EGemType GemType)
 {
-	const int Row = GetColumnHeight(Column);
+	const int Row = Columns[Column].GetHeight();
 	FVector SpawnLocation = GetActorLocation();
 	SpawnLocation += GetActorRightVector() * Column * CellSpacing;
 	SpawnLocation += GetActorForwardVector() * (BoardHeight + DistanceSpawnAboveBoard) * CellSpacing;
@@ -310,7 +295,7 @@ void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 	{
 		for (AGemBase* Gem : Matches)
 		{
-			InternalBoard->Remove(Gem);
+			Remove(Gem);
 			DestroyGem(Gem);
 		}
 		CurrentSwap.FirstGem = nullptr;
@@ -331,12 +316,18 @@ void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 
 FBoardLocation AGameBoard::GetNextEmptyLocationBelow(const FBoardLocation& InLocation) const
 {
-	return InternalBoard->GetNextEmptyLocationBelow(InLocation);
+	FBoardLocation OutLocation;
+	OutLocation.X = InLocation.X;
+	OutLocation.Y = Columns[InLocation.X].GetEmptySpaceUnder(InLocation.Y);
+	return OutLocation;
 }
 
 FBoardLocation AGameBoard::GetTopEmptyLocation(int32 Column) const
 {
-	return InternalBoard->GetTopEmptyLocation(Column);
+	FBoardLocation OutLocation;
+	OutLocation.X = Column;
+	OutLocation.Y = Columns[Column].GetTopEmptyIndex();
+	return OutLocation;
 }
 
 EGemType AGameBoard::GetRandomGemType() const
@@ -348,16 +339,12 @@ EGemType AGameBoard::GetRandomGemType() const
 
 void AGameBoard::QueueGemToSpawn(int32 Column)
 {
-	GemsToSpawn[Column].Add(GetRandomGemType());
+	Columns[Column].QueueGemToSpawn(GetRandomGemType());
 }
 
 EGemType AGameBoard::DequeueGemToSpawn(int32 Column)
 {
-	if (GemsToSpawn[Column].IsEmpty())
-	{
-		UE_LOG(LogTemp, Fatal, TEXT("Tried to dequeue gem from empty queue"));
-	}
-	return GemsToSpawn[Column].Pop();
+	return Columns[Column].DequeueGemToSpawn();
 }
 
 void AGameBoard::MoveGemDown(const FBoardLocation& InLocation)
@@ -375,3 +362,42 @@ void AGameBoard::SpawnGemInColumn(int32 Column)
 	MoveGemToBoardLocation(Gem, NewBoardLocation);
 }
 
+FBoardLocation AGameBoard::GetBoardLocation(const AGemBase* Gem) const
+{
+	if (!Gem)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Gem is nullptr. Returning default location."));
+		return FBoardLocation();
+	}
+	else
+	{
+		FBoardLocation BoardLocation;
+		for (int i = 0; i < Columns.Num(); i++)
+		{
+			int Index = Columns[i].GetIndex(Gem);
+			if (Index == -1)
+			{
+				continue;
+			}
+			else
+			{
+				BoardLocation.X = i;
+				BoardLocation.Y = Index;
+				return BoardLocation;
+			}
+		}
+	}
+	UE_LOG(LogTemp, Error, TEXT("Gem [&s] does not exist on the board. Returning default location."), Gem->GetFName());
+	return FBoardLocation();
+}
+
+void AGameBoard::Remove(AGemBase* InGem)
+{
+	const FBoardLocation BoardLocation = GetBoardLocation(InGem);
+	SetGem(nullptr, BoardLocation);
+}
+
+bool operator==(const FBoardLocation& A, const FBoardLocation& B)
+{
+	return A.X == B.X && A.Y == B.Y;
+}

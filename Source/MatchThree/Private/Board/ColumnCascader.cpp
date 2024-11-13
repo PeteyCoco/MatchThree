@@ -4,7 +4,6 @@
 #include "Board/ColumnCascader.h"
 #include "TimerManager.h"
 #include "GameBoard.h"
-#include "Board/InternalBoard.h"
 #include "GemBase.h"
 
 void UColumnCascader::Execute(AGameBoard* InGameBoard, int32 InColumn, float CascadeRate)

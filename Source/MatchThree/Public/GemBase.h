@@ -5,9 +5,21 @@
 #include "CoreMinimal.h"
 #include "Components/GemMovementComponent.h"
 #include "GameFramework/Actor.h"
-#include "GameBoard.h"
 #include "GemBase.generated.h"
 
+UENUM()
+enum class EGemType : uint8
+{
+	Capsule,
+	Cone,
+	Icosphere,
+	Sphere,
+	Square,
+	Triangle,
+	Torus,
+
+	MAX
+};
 
 class UGemDataAsset;
 class UGemMovementComponent;

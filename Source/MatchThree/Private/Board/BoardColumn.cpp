@@ -11,7 +11,6 @@ FBoardColumn::FBoardColumn()
 FBoardColumn::FBoardColumn(int32 Height)
 {
 	Gems.SetNum(Height);
-	Gems.Empty();
 }
 
 int32 FBoardColumn::GetHeight() const
@@ -21,39 +20,36 @@ int32 FBoardColumn::GetHeight() const
 
 AGemBase* FBoardColumn::GetGem(int32 Index) const
 {
-	if (!IsValidIndex(Index)) return nullptr;
-
 	return Gems[Index];
 }
 
 AGemBase* FBoardColumn::GetGem(int32 Index)
 {
-	if (!IsValidIndex(Index)) return nullptr;
-
 	return Gems[Index];
 }
 
 void FBoardColumn::SetGem(AGemBase* InGem, int32 Index)
 {
-	if (!IsValidIndex(Index)) return;
-
 	Gems[Index] = InGem;
+}
+
+bool FBoardColumn::Contains(const AGemBase* Gem) const
+{
+	return GetIndex(Gem) != -1;
 }
 
 bool FBoardColumn::IsEmpty(int32 Index) const
 {
-	if (!IsValidIndex(Index)) return false;
-
 	return Gems[Index] == nullptr;
 }
 
-bool FBoardColumn::IsValidIndex(int32 Index) const
+int32 FBoardColumn::GetIndex(const AGemBase* Gem) const
 {
-	if (Index < Gems.Num() && Index >= 0)
+	for (int i = 0; i < Gems.Num(); i++)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Index [%d] out of range!"));
+		if (Gems[i] == Gem) return i;
 	}
-	return true;
+	return -1;
 }
 
 void FBoardColumn::QueueGemToSpawn(EGemType GemType)
@@ -63,6 +59,10 @@ void FBoardColumn::QueueGemToSpawn(EGemType GemType)
 
 EGemType FBoardColumn::DequeueGemToSpawn()
 {
+	if (GemsToSpawn.IsEmpty())
+	{
+		UE_LOG(LogTemp, Fatal, TEXT("Tried to dequeue gem from empty queue"));
+	}
 	return GemsToSpawn.Pop();
 }
 
@@ -91,5 +91,20 @@ int32 FBoardColumn::GetTopEmptyIndex() const
 	}
 
 	return GetEmptySpaceUnder(TopIndex);
+}
+
+int32 FBoardColumn::NumberOfGems() const
+{
+	int32 Number = 0;
+	for (AGemBase* Gem : Gems)
+	{
+		if (Gem) Number++;
+	}
+	return Number;
+}
+
+int32 FBoardColumn::NumberOfGemsToSpawn() const
+{
+	return GemsToSpawn.Num();
 }
 

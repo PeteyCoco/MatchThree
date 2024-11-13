@@ -6,13 +6,15 @@
 #include "GemBase.h"
 #include "BoardColumn.generated.h"
 
-class AGemBase;
 
 /**
  * 
  */
+USTRUCT()
 struct FBoardColumn
 {
+	GENERATED_BODY();
+
 public:
 	FBoardColumn();
 	FBoardColumn(int32 Height);
@@ -24,7 +26,11 @@ public:
 
 	void SetGem(AGemBase* InGem, int32 Index);
 
+	bool Contains(const AGemBase* Gem) const;
+
 	bool IsEmpty(int32 Index) const;
+
+	int32 GetIndex(const AGemBase* Gem) const;
 
 	void QueueGemToSpawn(EGemType GemType);
 	EGemType DequeueGemToSpawn();
@@ -33,10 +39,12 @@ public:
 
 	int32 GetTopEmptyIndex() const;
 
+	int32 NumberOfGems() const;
+
+	int32 NumberOfGemsToSpawn() const;
+
 private:
 	TArray<AGemBase*> Gems;
 
 	TArray<EGemType> GemsToSpawn;
-
-	bool IsValidIndex(int32 Index) const;
 };
