@@ -24,6 +24,8 @@ protected:
 	AGameBoard* GameBoard;
 	int32 Column;
 	int32 CurrentRow;
+	int32 GapsToFill;
+	int32 GapsFilled = 0;
 
 	UFUNCTION()
 	void CascadeTimerCallback();

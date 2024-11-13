@@ -120,9 +120,9 @@ int UInternalBoard::SpacesAtTop(int Column) const
 	return Spaces;
 }
 
-FBoardLocation UInternalBoard::GetNextEmptyLocationBelow(AGemBase* Gem) const
+FBoardLocation UInternalBoard::GetNextEmptyLocationBelow(const FBoardLocation& InLocation) const
 {
-	FBoardLocation CandidateBoardLocation = GetBoardLocation(Gem);
+	FBoardLocation CandidateBoardLocation = InLocation;
 	while (CandidateBoardLocation.Y > 0)
 	{
 		CandidateBoardLocation.Y--;
@@ -133,6 +133,11 @@ FBoardLocation UInternalBoard::GetNextEmptyLocationBelow(AGemBase* Gem) const
 		}
 	}
 	return CandidateBoardLocation;
+}
+
+FBoardLocation UInternalBoard::GetTopEmptyLocation(int32 Column) const
+{
+	return GetNextEmptyLocationBelow({Column, BoardHeight - 1});
 }
 
 bool UInternalBoard::AddGemToTopOfColumn(int Column, AGemBase* Gem)
@@ -146,10 +151,38 @@ bool UInternalBoard::AddGemToTopOfColumn(int Column, AGemBase* Gem)
 	return true;
 }
 
+int32 UInternalBoard::NumberOfGems(int32 Column) const
+{
+	int Number = 0;
+	for (int Row = 0; Row < BoardHeight; Row++)
+	{
+		if (!IsEmpty({ Column, Row }))
+		{
+			Number++;
+		}
+	}
+	return Number;
+}
+
 void UInternalBoard::Remove(AGemBase* InGem)
 {
 	const FBoardLocation BoardLocation = GetBoardLocation(InGem);
 	SetGem(nullptr, BoardLocation);
+}
+
+bool UInternalBoard::ContainsGem(AGemBase* InGem) const
+{
+	for (int32 ColIndex = 0; ColIndex < BoardWidth; ++ColIndex)
+	{
+		for (int32 RowIndex = 0; RowIndex < BoardHeight; ++RowIndex)
+		{
+			if (BoardData[ColIndex][RowIndex] == InGem)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 bool operator==(const FBoardLocation& A, const FBoardLocation& B)

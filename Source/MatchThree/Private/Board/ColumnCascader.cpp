@@ -14,6 +14,14 @@ void UColumnCascader::Execute(AGameBoard* InGameBoard, int32 InColumn, float Cas
 
 	if (!InGameBoard) return;
 
+	GapsFilled = 0;
+	GapsToFill = GameBoard->GetBoardHeight() - GameBoard->NumberOfGems(Column);
+
+	for (int i = 0; i < GapsToFill; i++)
+	{
+		GameBoard->QueueGemToSpawn(Column);
+	}
+
 	GetWorld()->GetTimerManager().SetTimer(CascadeTimer, this, &UColumnCascader::CascadeTimerCallback, CascadeRate, true, 0.f);
 }
 
@@ -21,11 +29,20 @@ void UColumnCascader::CascadeTimerCallback()
 {
 	if (CurrentRow < GameBoard->GetBoardHeight())
 	{
-		// Move the gem to the next empty spot below it in the column
+		// Move board gems down to the next empty spot below it in the column
 		AGemBase* Gem = GameBoard->GetGem({ Column, CurrentRow });
-		const FBoardLocation NewBoardLocation = GameBoard->GetNextEmptyLocationBelow(Gem);
+		const FBoardLocation NewBoardLocation = GameBoard->GetNextEmptyLocationBelow({ Column, CurrentRow });
 		GameBoard->MoveGemToBoardLocation(Gem, NewBoardLocation);
 		CurrentRow++;
+	}
+	else if (GapsFilled < GapsToFill)
+	{
+		// Spawn gems to fill in the gaps
+		EGemType GemType = GameBoard->DequeueGemToSpawn(Column);
+		AGemBase* Gem = GameBoard->SpawnGem(Column, GemType);
+		const FBoardLocation NewBoardLocation = GameBoard->GetTopEmptyLocation(Column);
+		GameBoard->MoveGemToBoardLocation(Gem, NewBoardLocation);
+		GapsFilled++;
 	}
 	else
 	{

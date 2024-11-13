@@ -70,6 +70,9 @@ public:
 	// Get the number of gems at the bottom of the column
 	int32 GetColumnHeight(int32 Column) const;
 
+	// Get the number of gems int the column
+	int32 NumberOfGems(int32 Column) const;
+
 	int32 GetBoardWidth() const;
 	int32 GetBoardHeight() const;
 
@@ -112,7 +115,15 @@ public:
 	void HandleGemMoveToComplete(AGemBase* InGem);
 
 	// Get the board location above the next lowest gem
-	FBoardLocation GetNextEmptyLocationBelow(AGemBase* Gem) const;
+	FBoardLocation GetNextEmptyLocationBelow(const FBoardLocation& InLocation) const;
+
+	// Get the empty location at the top of the column
+	FBoardLocation GetTopEmptyLocation(int32 Column) const;
+
+	EGemType GetRandomGemType() const;
+
+	void QueueGemToSpawn(int32 Column);
+	EGemType DequeueGemToSpawn(int32 Column);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
@@ -152,4 +163,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Board Properties")
 	float CascadeRate = 1.f;
+
+	TMap<int32, TArray<EGemType>> GemsToSpawn;
 };

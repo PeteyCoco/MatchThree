@@ -70,16 +70,24 @@ public:
 	int SpacesAtTop(int Column) const;
 
 	// Get the board location above the next lowest gem
-	FBoardLocation GetNextEmptyLocationBelow(AGemBase* Gem) const;
+	FBoardLocation GetNextEmptyLocationBelow(const FBoardLocation& InLocation) const;
+
+	FBoardLocation GetTopEmptyLocation(int32 Column) const;
+
 
 	// Add a gem to the top of the column. Returns false if failed
 	bool AddGemToTopOfColumn(int Column, AGemBase* Gem);
+
+	// Get the number of gems in the column
+	int32 NumberOfGems(int32 Column) const;
 
 	// Remove the given gem from the board
 	void Remove(AGemBase* InGem);
 	 
 	int32 GetBoardWidth() { return BoardWidth; }
 	int32 GetBoardHeight() { return BoardHeight; }
+
+	bool ContainsGem(AGemBase* InGem) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")

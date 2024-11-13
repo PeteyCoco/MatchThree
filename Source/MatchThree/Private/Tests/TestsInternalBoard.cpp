@@ -39,10 +39,9 @@ bool FMatchThreeTest::RunTest(const FString& Parameters)
 		InternalBoard->SetGem(GemB, { 1,2 });
 		InternalBoard->SetGem(GemC, { 1,5 });
 
-		TestEqual(TEXT("The free space below GemA is {1,0}"), InternalBoard->GetNextEmptyLocationBelow(GemA), FBoardLocation(1,0));
-		TestEqual(TEXT("The free space below GemB is {1,1}"), InternalBoard->GetNextEmptyLocationBelow(GemB), FBoardLocation(1,1));
-		TestEqual(TEXT("The free space below GemC is {1,3}"), InternalBoard->GetNextEmptyLocationBelow(GemC), FBoardLocation(1,3));
-
+		TestEqual(TEXT("The free space below GemA is {1,0}"), InternalBoard->GetNextEmptyLocationBelow({ 1,0 }), FBoardLocation(1,0));
+		TestEqual(TEXT("The free space below GemB is {1,1}"), InternalBoard->GetNextEmptyLocationBelow({ 1,2 }), FBoardLocation(1,1));
+		TestEqual(TEXT("The free space below GemC is {1,3}"), InternalBoard->GetNextEmptyLocationBelow({ 1,5 }), FBoardLocation(1,3));
 	}
 
 	return true;

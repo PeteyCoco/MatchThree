@@ -22,6 +22,12 @@ void AGameBoard::BeginPlay()
 	InternalBoard = NewObject<UInternalBoard>(this);
 	InitializeInternalBoard();
 
+	// Initialize GemsToSpawn map
+	for (int Column = 0; Column < BoardWidth; Column++)
+	{
+		GemsToSpawn.Add(Column, {});
+	}
+
 	ResetBoard();
 }
 
@@ -67,6 +73,11 @@ int32 AGameBoard::GetColumnHeight(int32 Column) const
 		++Height;
 	}
 	return Height;
+}
+
+int32 AGameBoard::NumberOfGems(int32 Column) const
+{
+	return InternalBoard->NumberOfGems(Column) + GemsToSpawn[Column].Num();
 }
 
 int32 AGameBoard::GetBoardWidth() const
@@ -129,8 +140,11 @@ void AGameBoard::MoveGemToBoardLocation(AGemBase* Gem, const FBoardLocation& New
 {
 	if (Gem)
 	{
-		const FBoardLocation OldBoardLocation = InternalBoard->GetBoardLocation(Gem);
-		InternalBoard->SetGem(nullptr, OldBoardLocation);
+		if (InternalBoard->ContainsGem(Gem))
+		{
+			const FBoardLocation OldBoardLocation = InternalBoard->GetBoardLocation(Gem);
+			InternalBoard->SetGem(nullptr, OldBoardLocation);
+		}
 		InternalBoard->SetGem(Gem, NewBoardLocation);
 		Gem->MoveTo(GetWorldLocation(NewBoardLocation));
 	}
@@ -138,21 +152,6 @@ void AGameBoard::MoveGemToBoardLocation(AGemBase* Gem, const FBoardLocation& New
 
 void AGameBoard::FillBoard()
 {
-	TArray<EGemType> GemTypes;
-	int NumGemTypes = GemData.GetKeys(GemTypes);
-
-	for (int i = 0; i < BoardWidth; i++)
-	{
-		const int NumberOfGemsToSpawn = InternalBoard->SpacesAtTop(i);
-
-		for (int j = 0; j < NumberOfGemsToSpawn; j++)
-		{
-			EGemType GemType = GemTypes[FMath::RandRange(0, NumGemTypes - 1)];
-			AGemBase* GemToPlace = SpawnGem(i, GemType);
-
-			InternalBoard->AddGemToTopOfColumn(i, GemToPlace);
-		}
-	}
 	CascadeBoard();
 }
 
@@ -330,8 +329,34 @@ void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 	}
 }
 
-FBoardLocation AGameBoard::GetNextEmptyLocationBelow(AGemBase* Gem) const
+FBoardLocation AGameBoard::GetNextEmptyLocationBelow(const FBoardLocation& InLocation) const
 {
-	return InternalBoard->GetNextEmptyLocationBelow(Gem);
+	return InternalBoard->GetNextEmptyLocationBelow(InLocation);
+}
+
+FBoardLocation AGameBoard::GetTopEmptyLocation(int32 Column) const
+{
+	return InternalBoard->GetTopEmptyLocation(Column);
+}
+
+EGemType AGameBoard::GetRandomGemType() const
+{
+	TArray<EGemType> GemTypes;
+	int NumGemTypes = GemData.GetKeys(GemTypes);
+	return GemTypes[FMath::RandRange(0, NumGemTypes - 1)];
+}
+
+void AGameBoard::QueueGemToSpawn(int32 Column)
+{
+	GemsToSpawn[Column].Add(GetRandomGemType());
+}
+
+EGemType AGameBoard::DequeueGemToSpawn(int32 Column)
+{
+	if (GemsToSpawn[Column].IsEmpty())
+	{
+		UE_LOG(LogTemp, Fatal, TEXT("Tried to dequeue gem from empty queue"));
+	}
+	return GemsToSpawn[Column].Pop();
 }
 
