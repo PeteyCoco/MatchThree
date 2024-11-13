@@ -125,6 +125,12 @@ public:
 	void QueueGemToSpawn(int32 Column);
 	EGemType DequeueGemToSpawn(int32 Column);
 
+	// Attempt to move the gem at the given location downward
+	void MoveGemDown(const FBoardLocation& InLocation);
+
+	// Spawn a gem into a column and move it down
+	void SpawnGemInColumn(int32 Column);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	int32 BoardWidth = 8;

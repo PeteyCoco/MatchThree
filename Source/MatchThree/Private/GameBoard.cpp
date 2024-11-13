@@ -360,3 +360,18 @@ EGemType AGameBoard::DequeueGemToSpawn(int32 Column)
 	return GemsToSpawn[Column].Pop();
 }
 
+void AGameBoard::MoveGemDown(const FBoardLocation& InLocation)
+{
+	AGemBase* Gem = GetGem(InLocation);
+	const FBoardLocation NewBoardLocation = GetNextEmptyLocationBelow(InLocation);
+	MoveGemToBoardLocation(Gem, NewBoardLocation);
+}
+
+void AGameBoard::SpawnGemInColumn(int32 Column)
+{
+	EGemType GemType = DequeueGemToSpawn(Column);
+	AGemBase* Gem = SpawnGem(Column, GemType);
+	const FBoardLocation NewBoardLocation = GetTopEmptyLocation(Column);
+	MoveGemToBoardLocation(Gem, NewBoardLocation);
+}
+

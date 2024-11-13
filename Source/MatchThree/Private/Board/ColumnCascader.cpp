@@ -29,19 +29,12 @@ void UColumnCascader::CascadeTimerCallback()
 {
 	if (CurrentRow < GameBoard->GetBoardHeight())
 	{
-		// Move board gems down to the next empty spot below it in the column
-		AGemBase* Gem = GameBoard->GetGem({ Column, CurrentRow });
-		const FBoardLocation NewBoardLocation = GameBoard->GetNextEmptyLocationBelow({ Column, CurrentRow });
-		GameBoard->MoveGemToBoardLocation(Gem, NewBoardLocation);
+		GameBoard->MoveGemDown({ Column, CurrentRow });
 		CurrentRow++;
 	}
 	else if (GapsFilled < GapsToFill)
 	{
-		// Spawn gems to fill in the gaps
-		EGemType GemType = GameBoard->DequeueGemToSpawn(Column);
-		AGemBase* Gem = GameBoard->SpawnGem(Column, GemType);
-		const FBoardLocation NewBoardLocation = GameBoard->GetTopEmptyLocation(Column);
-		GameBoard->MoveGemToBoardLocation(Gem, NewBoardLocation);
+		GameBoard->SpawnGemInColumn(Column);
 		GapsFilled++;
 	}
 	else
