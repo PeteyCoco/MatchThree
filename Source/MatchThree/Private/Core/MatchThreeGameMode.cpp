@@ -5,6 +5,7 @@
 
 #include "GameBoard.h"
 #include "Board/Match.h"
+#include "Board/TaskPool.h"
 #include "Board/TaskAddGemToColumn.h"
 #include "Board/TaskCollapseAndFill.h"
 #include "Kismet/GameplayStatics.h"
@@ -18,6 +19,7 @@ void AMatchThreeGameMode::StartPlay()
 	Super::StartPlay();
 
 	// Collect dependencies
+	TaskPool = NewObject<UTaskPool>(this);
 	GameBoard = Cast<AGameBoard>(UGameplayStatics::GetActorOfClass(this, AGameBoard::StaticClass()));
 
 	GameBoard->OnMatchFoundDelegate.AddUniqueDynamic(this, &AMatchThreeGameMode::HandleMatchesFound);
@@ -26,6 +28,7 @@ void AMatchThreeGameMode::StartPlay()
 	for (int Column = 0; Column < GameBoard->GetBoardWidth(); Column++)
 	{
 		UTaskAddGemsToColumn* Task = NewObject<UTaskAddGemsToColumn>(this);
+		TaskPool->AddTask(Task);
 		Task->Init(GameBoard, Column, GameBoard->GetBoardHeight(), .2f);
 		Task->Execute();
 	}
@@ -53,6 +56,7 @@ void AMatchThreeGameMode::HandleMatchesFound(TArray<FMatch>& Matches)
 
 		// Collapse and fill the column
 		UTaskCollapseAndFill* TaskCollapseAndFill = NewObject<UTaskCollapseAndFill>(this);
+		TaskPool->AddTask(TaskCollapseAndFill);
 		TaskCollapseAndFill->Init(GameBoard, Column, NumberToAdd, .2f);
 		TaskCollapseAndFill->Execute();
 	}

@@ -9,6 +9,7 @@
 
 class AGameBoard;
 class AGemBase;
+class UTaskPool;
 
 /**
  * 
@@ -30,4 +31,8 @@ protected:
 
 	UFUNCTION()
 	void HandleMatchesFound(TArray<FMatch>& Matches);
+
+	// Task pool for overseeing ongoing tasks
+	UPROPERTY()
+	UTaskPool* TaskPool;
 };
