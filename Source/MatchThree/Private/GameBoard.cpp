@@ -22,9 +22,11 @@ void AGameBoard::BeginPlay()
 	for (int Column = 0; Column < BoardWidth; Column++)
 	{
 		Columns.Add(FBoardColumn(BoardHeight));
+		for (int Row = 0; Row < BoardHeight; Row++)
+		{
+			QueueGemToSpawn(Column);
+		}
 	}
-
-	ResetBoard();
 }
 
 void AGameBoard::DestroyGem(AGemBase* Gem)
@@ -155,7 +157,6 @@ void AGameBoard::MoveGemToBoardLocation(AGemBase* Gem, const FBoardLocation& New
 
 void AGameBoard::FillBoard()
 {
-	CascadeBoard();
 }
 
 bool AGameBoard::IsInPosition(AGemBase* InGem) const
@@ -344,6 +345,7 @@ void AGameBoard::QueueGemToSpawn(int32 Column)
 
 EGemType AGameBoard::DequeueGemToSpawn(int32 Column)
 {
+	QueueGemToSpawn(Column);
 	return Columns[Column].DequeueGemToSpawn();
 }
 
