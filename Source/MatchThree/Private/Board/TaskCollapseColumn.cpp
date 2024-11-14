@@ -18,6 +18,12 @@ void UTaskCollapseColumn::Execute()
 
 void UTaskCollapseColumn::TimerCallback()
 {
+	// Find the next location that can move down
+	while (CurrentRow < GameBoard->GetBoardHeight() && !GameBoard->CanMoveDown({ Column, CurrentRow }))
+	{
+		CurrentRow++;
+	}
+
 	if (CurrentRow < GameBoard->GetBoardHeight())
 	{
 		GameBoard->MoveGemDown({ Column, CurrentRow });

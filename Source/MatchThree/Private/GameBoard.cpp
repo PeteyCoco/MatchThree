@@ -148,6 +148,19 @@ bool AGameBoard::IsInPosition(AGemBase* InGem) const
 	return true;
 }
 
+bool AGameBoard::IsInPosition(const FBoardLocation& InLocation) const
+{
+	const AGemBase* Gem = GetGem(InLocation);
+	if (!Gem) return true; // An empty location is considered as in position
+
+	const float DistSquaredToBoardLocation = FVector::DistSquared(GetWorldLocation(InLocation), Gem->GetActorLocation());
+	if (DistSquaredToBoardLocation > 10.f || Gem->IsMoving())
+	{
+		return false;
+	}
+	return true;
+}
+
 bool AGameBoard::IsEmpty(const FBoardLocation& InLocation) const
 {
 	return Columns[InLocation.X].IsEmpty(InLocation.Y);
@@ -325,6 +338,13 @@ void AGameBoard::MoveGemDown(const FBoardLocation& InLocation)
 	AGemBase* Gem = GetGem(InLocation);
 	const FBoardLocation NewBoardLocation = GetNextEmptyLocationBelow(InLocation);
 	MoveGemToBoardLocation(Gem, NewBoardLocation);
+}
+
+bool AGameBoard::CanMoveDown(const FBoardLocation& InLocation) const
+{
+	FBoardLocation LocationBelow = InLocation;
+	LocationBelow.Y--;
+	return !IsEmpty(InLocation) && LocationBelow.Y >= 0 && IsEmpty(LocationBelow);
 }
 
 void AGameBoard::SpawnGemInColumn(int32 Column)

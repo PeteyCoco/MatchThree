@@ -81,6 +81,7 @@ public:
 
 	// Return true if the gems is near its board positions and not moving
 	bool IsInPosition(AGemBase* InGem) const;
+	bool IsInPosition(const FBoardLocation& InLocation) const;
 
 	bool IsEmpty(const FBoardLocation& InLocation) const;
 
@@ -104,6 +105,9 @@ public:
 
 	// Attempt to move the gem at the given location downward
 	void MoveGemDown(const FBoardLocation& InLocation);
+
+	// Return true if the gem at this location can move down
+	bool CanMoveDown(const FBoardLocation& InLocation) const;
 
 	// Spawn a gem into a column and move it down
 	void SpawnGemInColumn(int32 Column);
