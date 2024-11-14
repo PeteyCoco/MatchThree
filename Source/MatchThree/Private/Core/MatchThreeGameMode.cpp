@@ -24,12 +24,19 @@ void AMatchThreeGameMode::StartPlay()
 	for (int Column = 0; Column < GameBoard->GetBoardWidth(); Column++)
 	{
 		UTaskAddGemsToColumn* Task = NewObject<UTaskAddGemsToColumn>(this);
-		Task->Init(GameBoard, Column, GameBoard->GetBoardHeight(), 1.f);
+		Task->Init(GameBoard, Column, GameBoard->GetBoardHeight(), .2f);
 		Task->Execute();
 	}
 }
 
-void AMatchThreeGameMode::HandleMatchFound()
+void AMatchThreeGameMode::HandleMatchFound(TArray<AGemBase*>& Gems)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Match found!"));
+	UE_LOG(LogTemp, Warning, TEXT("Match found! Destroying..."));
+
+	for (AGemBase* Gem : Gems)
+	{
+		GameBoard->Remove(Gem);
+		Gem->Destroy();
+	}
+
 }

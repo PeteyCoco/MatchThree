@@ -8,6 +8,7 @@
 #include "MatchThreeGameMode.generated.h"
 
 class AGameBoard;
+class AGemBase;
 
 /**
  * 
@@ -28,5 +29,5 @@ protected:
 	TObjectPtr<AGameBoard> GameBoard;
 
 	UFUNCTION()
-	void HandleMatchFound();
+	void HandleMatchFound(TArray<AGemBase*>& Gems);
 };

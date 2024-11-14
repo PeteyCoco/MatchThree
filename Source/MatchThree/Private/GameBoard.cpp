@@ -35,11 +35,6 @@ void AGameBoard::DestroyGem(AGemBase* Gem)
 	Gem->Destroy();
 }
 
-void AGameBoard::ResetBoard()
-{
-	FillBoard();
-}
-
 AGemBase* AGameBoard::GetGem(const FBoardLocation& InLocation) const
 {
 	return Columns[InLocation.X].GetGem(InLocation.Y);
@@ -153,10 +148,6 @@ void AGameBoard::MoveGemToBoardLocation(AGemBase* Gem, const FBoardLocation& New
 		SetGem(Gem, NewBoardLocation);
 		Gem->MoveTo(GetWorldLocation(NewBoardLocation));
 	}
-}
-
-void AGameBoard::FillBoard()
-{
 }
 
 bool AGameBoard::IsInPosition(AGemBase* InGem) const
@@ -294,7 +285,7 @@ void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 
 	if (!Matches.IsEmpty())
 	{
-		OnMatchFoundDelegate.Broadcast();
+		OnMatchFoundDelegate.Broadcast(Matches);
 		CurrentSwap.FirstGem = nullptr;
 		CurrentSwap.SecondGem = nullptr;
 	}

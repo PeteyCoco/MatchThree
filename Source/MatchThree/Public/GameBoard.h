@@ -14,7 +14,7 @@ class UGemDataAsset;
 class UInternalBoard;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBoardCascadeCompleteSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMatchFoundSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMatchFoundSignature, TArray<AGemBase*>&, Gems);
 
 /* The gems involved in a swap action */
 USTRUCT()
@@ -69,9 +69,6 @@ protected:
 
 public:
 	AGameBoard();
-	
-	UFUNCTION(BlueprintCallable, Category = "Game Board")
-	void ResetBoard();
 
 	UFUNCTION(BlueprintCallable, Category = "Game Board")
 	AGemBase* SpawnGem(int32 Column, EGemType GemType);
@@ -119,9 +116,6 @@ public:
 	// Delegate that broadcasts when a match is found
 	UPROPERTY(BlueprintAssignable)
 	FOnMatchFoundSignature OnMatchFoundDelegate;
-
-	// Spawn gems at the top of the board to fill in empty space
-	void FillBoard();
 
 	// Return true if the gems is near its board positions and not moving
 	bool IsInPosition(AGemBase* InGem) const;
