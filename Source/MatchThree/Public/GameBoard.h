@@ -14,7 +14,6 @@ class AGemBase;
 class UGemDataAsset;
 class UInternalBoard;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBoardCascadeCompleteSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMatchFoundSignature, TArray<FMatch>&, Matches);
 
 /* The gems involved in a swap action */
@@ -72,19 +71,9 @@ public:
 	// Swap the gems' position on the board
 	void SwapGems(AGemBase* GemA, AGemBase* GemB);
 
-	// Move the board gems to their board positions
-	void CascadeBoard();
-
-	// Move column of gems into position
-	void CascadeColumn(int Column);
-
 	void MoveIntoPosition(const FBoardLocation& BoardLocation);
 
 	void MoveGemToBoardLocation(AGemBase* Gem, const FBoardLocation& NewBoardLocation);
-
-	// Delegate that broadcasts when the board has finished cascading
-	UPROPERTY(BlueprintAssignable)
-	FBoardCascadeCompleteSignature BoardCascadeCompleteDelegate;
 
 	// Delegate that broadcasts when a match is found
 	UPROPERTY(BlueprintAssignable)
@@ -154,9 +143,6 @@ protected:
 	FSwapPair CurrentSwap;
 
 	void DestroyGem(AGemBase* Gem);
-
-	UPROPERTY(EditAnywhere, Category = "Board Properties")
-	float CascadeRate = 1.f;
 
 	TArray<struct FBoardColumn> Columns;
 };

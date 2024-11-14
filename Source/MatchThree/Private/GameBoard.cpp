@@ -6,7 +6,6 @@
 #include "GemBase.h"
 #include "DrawDebugHelpers.h"
 #include "TimerManager.h"
-#include "Board/ColumnCascader.h"
 #include "Board/BoardColumn.h"
 
 AGameBoard::AGameBoard()
@@ -111,20 +110,6 @@ void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
 	// Swap internal board positions
 	SetGem(CurrentSwap.SecondGem, FirstInLocation);
 	SetGem(CurrentSwap.FirstGem, SecondInLocation);
-}
-
-void AGameBoard::CascadeBoard()
-{
-	for (int i = 0; i < BoardWidth; i++)
-	{
-		CascadeColumn(i);
-	}
-}
-
-void AGameBoard::CascadeColumn(int Column)
-{
-	UColumnCascader* ColumnCascader = NewObject<UColumnCascader>(this);
-	ColumnCascader->Execute(this, Column, CascadeRate);
 }
 
 void AGameBoard::MoveIntoPosition(const FBoardLocation& BoardLocation)
