@@ -26,7 +26,6 @@ void UTaskAddGemsToColumn::TimerCallback()
 	}
 	else
 	{
-		bIsComplete = true;
-		OnTaskComplete.Broadcast();
+		Complete();
 	}
 }

@@ -168,7 +168,7 @@ bool AGameBoard::IsEmpty(const FBoardLocation& InLocation) const
 	return Columns[InLocation.X].IsEmpty(InLocation.Y);
 }
 
-void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
+void AGameBoard::GetMatch(AGemBase* InGem, FMatch& OutMatch) const
 {
 	if (!InGem)
 	{
@@ -181,8 +181,8 @@ void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
 	const int XMax = FMath::Min(InLocation.X + 2, BoardWidth - 1);
 
 	// Check horizontal matches
-	TArray<AGemBase*> Matches;
-	Matches.Add(InGem);
+	TArray<FBoardLocation> Matches;
+	Matches.Add(InLocation);
 
 	// Grow the left
 	for (int i = InLocation.X - 1; XMin <= i; i--)
@@ -190,7 +190,7 @@ void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
 		AGemBase* CandidateGem = GetGem({ i,InLocation.Y });
 		if (IsInPosition(CandidateGem) && CandidateGem && CandidateGem->GetType() == InGem->GetType())
 		{
-			Matches.Add(CandidateGem);
+			Matches.Add({i,InLocation.Y });
 		}
 		else
 		{
@@ -203,7 +203,7 @@ void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
 		AGemBase* CandidateGem = GetGem({ i,InLocation.Y });
 		if (IsInPosition(CandidateGem) && CandidateGem && CandidateGem->GetType() == InGem->GetType())
 		{
-			Matches.Add(CandidateGem);
+			Matches.Add({ i,InLocation.Y });
 		}
 		else
 		{
@@ -214,7 +214,7 @@ void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
 	// Check that at least 3 matches occured
 	if (Matches.Num() >= 3)
 	{
-		OutMatch.Append(Matches);
+		OutMatch.AddLocations(Matches);
 		return;
 	}
 
@@ -223,7 +223,7 @@ void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
 	const int YMax = FMath::Min(InLocation.Y + 2, BoardHeight - 1);
 
 	Matches.Empty();
-	Matches.Add(InGem);
+	Matches.Add(InLocation);
 
 	// Grow the bottom
 	for (int i = InLocation.Y - 1; YMin <= i; i--)
@@ -231,7 +231,7 @@ void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
 		AGemBase* CandidateGem = GetGem({ InLocation.X,i });
 		if (IsInPosition(CandidateGem) && CandidateGem && CandidateGem->GetType() == InGem->GetType())
 		{
-			Matches.Add(CandidateGem);
+			Matches.Add({ InLocation.X,i });
 		}
 		else
 		{
@@ -244,7 +244,7 @@ void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
 		AGemBase* CandidateGem = GetGem({ InLocation.X,i });
 		if (IsInPosition(CandidateGem) && CandidateGem && CandidateGem->GetType() == InGem->GetType())
 		{
-			Matches.Add(CandidateGem);
+			Matches.Add({ InLocation.X,i });
 		}
 		else
 		{
@@ -255,7 +255,7 @@ void AGameBoard::GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const
 	// Check that at least 3 matches occured
 	if (Matches.Num() >= 3)
 	{
-		OutMatch.Append(Matches);
+		OutMatch.AddLocations(Matches);
 	}
 }
 
@@ -280,11 +280,12 @@ AGemBase* AGameBoard::SpawnGem(int32 Column, EGemType GemType)
 void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 {
 	// Look for matches
-	TArray<AGemBase*> Matches;
-	GetMatches(InGem, Matches);
+	FMatch Match;
+	GetMatch(InGem, Match);
 
-	if (!Matches.IsEmpty())
+	if (!Match.GemLocations.IsEmpty())
 	{
+		TArray<FMatch> Matches{ Match };
 		OnMatchFoundDelegate.Broadcast(Matches);
 		CurrentSwap.FirstGem = nullptr;
 		CurrentSwap.SecondGem = nullptr;

@@ -29,5 +29,5 @@ protected:
 	TObjectPtr<AGameBoard> GameBoard;
 
 	UFUNCTION()
-	void HandleMatchFound(TArray<AGemBase*>& Gems);
+	void HandleMatchesFound(TArray<FMatch>& Matches);
 };

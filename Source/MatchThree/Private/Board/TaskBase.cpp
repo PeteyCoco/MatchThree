@@ -3,3 +3,8 @@
 
 #include "Board/TaskBase.h"
 
+void UTaskBase::Complete()
+{
+	bIsComplete = true;
+	OnTaskComplete.Broadcast();
+}

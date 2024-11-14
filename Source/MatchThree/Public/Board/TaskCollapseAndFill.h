@@ -3,17 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
 #include "Board/TaskBase.h"
-#include "TaskAddGemToColumn.generated.h"
-
+#include "TaskCollapseAndFill.generated.h"
 
 class AGameBoard;
+class UTaskCollapseColumn;
+class UTaskAddGemsToColumn;
+
 /**
- * 
+ *  Collapse a column and fill it with the specified number of gems
  */
 UCLASS()
-class MATCHTHREE_API UTaskAddGemsToColumn : public UTaskBase
+class MATCHTHREE_API UTaskCollapseAndFill : public UTaskBase
 {
 	GENERATED_BODY()
 
@@ -25,7 +26,15 @@ public:
 public:
 	void Init(AGameBoard* InGameBoard, int32 InColumn, int32 InNumberToAdd, float InTimerRate);
 
+	FOnTaskCompleteSignature OnTaskComplete;
+
 private:
+	UPROPERTY()
+	UTaskCollapseColumn* TaskCollapseColumn;
+
+	UPROPERTY()
+	UTaskAddGemsToColumn* TaskAddGemsToColumn;
+
 	UPROPERTY()
 	AGameBoard* GameBoard;
 
@@ -36,7 +45,4 @@ private:
 
 	FTimerHandle TimerHandle;
 	float TimerRate;
-
-	UFUNCTION()
-	void TimerCallback();
 };

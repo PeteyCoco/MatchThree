@@ -25,7 +25,6 @@ void UTaskCollapseColumn::TimerCallback()
 	}
 	else
 	{
-		bIsComplete = true;
-		OnTaskComplete.Broadcast();
+		Complete();
 	}
 }

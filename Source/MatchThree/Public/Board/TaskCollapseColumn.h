@@ -26,8 +26,6 @@ public:
 public:
 	void Init(AGameBoard* InGameBoard, int32 InColumn, float InTimerRate);
 
-	FOnTaskCompleteSignature OnTaskComplete;
-
 private:
 	UPROPERTY()
 	AGameBoard* GameBoard;

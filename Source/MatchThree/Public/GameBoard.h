@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Engine/TimerHandle.h"
 #include "GemBase.h"
+#include "Board/Match.h"
 #include "Board/BoardColumn.h"
 #include "GameBoard.generated.h"
 
@@ -14,7 +15,7 @@ class UGemDataAsset;
 class UInternalBoard;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBoardCascadeCompleteSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMatchFoundSignature, TArray<AGemBase*>&, Gems);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMatchFoundSignature, TArray<FMatch>&, Matches);
 
 /* The gems involved in a swap action */
 USTRUCT()
@@ -24,34 +25,6 @@ struct FSwapPair
 
 	AGemBase* FirstGem;
 	AGemBase* SecondGem;
-};
-
-/*
-* Struct representing a coordinate on the board
-*/
-USTRUCT(Blueprintable)
-struct FBoardLocation
-{
-	GENERATED_BODY()
-
-	FBoardLocation()
-	{
-		X = 0;
-		Y = 0;
-	}
-	FBoardLocation(int InX, int InY)
-	{
-		X = InX;
-		Y = InY;
-	}
-
-	UPROPERTY()
-	int32 X = 0;
-
-	UPROPERTY()
-	int32 Y = 0;
-
-	friend bool operator==(const FBoardLocation& A, const FBoardLocation& B);
 };
 
 /*
@@ -123,7 +96,7 @@ public:
 	bool IsEmpty(const FBoardLocation& InLocation) const;
 
 	// Return an array of gems that form a match with the gem at the given location
-	void GetMatches(AGemBase* InGem, TArray<AGemBase*>& OutMatch) const;
+	void GetMatch(AGemBase* InGem, FMatch& OutMatch) const;
 
 	// Logic to execute when a gem has finished a MoveTo
 	UFUNCTION()
