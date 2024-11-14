@@ -14,6 +14,7 @@ class UGemDataAsset;
 class UInternalBoard;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBoardCascadeCompleteSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMatchFoundSignature);
 
 /* The gems involved in a swap action */
 USTRUCT()
@@ -52,8 +53,6 @@ struct FBoardLocation
 
 	friend bool operator==(const FBoardLocation& A, const FBoardLocation& B);
 };
-
-
 
 /*
 * Base class for the game board in a match three game
@@ -116,6 +115,10 @@ public:
 	// Delegate that broadcasts when the board has finished cascading
 	UPROPERTY(BlueprintAssignable)
 	FBoardCascadeCompleteSignature BoardCascadeCompleteDelegate;
+
+	// Delegate that broadcasts when a match is found
+	UPROPERTY(BlueprintAssignable)
+	FOnMatchFoundSignature OnMatchFoundDelegate;
 
 	// Spawn gems at the top of the board to fill in empty space
 	void FillBoard();

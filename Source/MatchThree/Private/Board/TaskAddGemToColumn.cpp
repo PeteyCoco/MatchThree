@@ -17,11 +17,6 @@ void UTaskAddGemsToColumn::Execute()
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTaskAddGemsToColumn::TimerCallback, TimerRate, true, 0.f);
 }
 
-bool UTaskAddGemsToColumn::IsComplete() const
-{
-	return bIsComplete;
-}
-
 void UTaskAddGemsToColumn::TimerCallback()
 {
 	if (NumberAdded < NumberToAdd)

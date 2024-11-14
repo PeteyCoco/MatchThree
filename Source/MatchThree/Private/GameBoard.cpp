@@ -294,15 +294,9 @@ void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 
 	if (!Matches.IsEmpty())
 	{
-		for (AGemBase* Gem : Matches)
-		{
-			Remove(Gem);
-			DestroyGem(Gem);
-		}
+		OnMatchFoundDelegate.Broadcast();
 		CurrentSwap.FirstGem = nullptr;
 		CurrentSwap.SecondGem = nullptr;
-
-		CascadeBoard();
 	}
 	else
 	{

@@ -26,4 +26,7 @@ protected:
 protected:
 	UPROPERTY()
 	TObjectPtr<AGameBoard> GameBoard;
+
+	UFUNCTION()
+	void HandleMatchFound();
 };

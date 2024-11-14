@@ -4,16 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "Board/TaskBase.h"
-#include "TaskAddGemToColumn.generated.h"
+#include "TaskBase.h"
+#include "TaskCollapseColumn.generated.h"
 
 
 class AGameBoard;
+
 /**
  * 
  */
 UCLASS()
-class MATCHTHREE_API UTaskAddGemsToColumn : public UTaskBase
+class MATCHTHREE_API UTaskCollapseColumn : public UTaskBase
 {
 	GENERATED_BODY()
 
@@ -23,7 +24,7 @@ public:
 	//~ End UTaskBase interface
 
 public:
-	void Init(AGameBoard* InGameBoard, int32 InColumn, int32 InNumberToAdd, float InTimerRate);
+	void Init(AGameBoard* InGameBoard, int32 InColumn, float InTimerRate);
 
 	FOnTaskCompleteSignature OnTaskComplete;
 
@@ -33,8 +34,7 @@ private:
 
 	int32 Column;
 
-	int32 NumberToAdd;
-	int32 NumberAdded;
+	int32 CurrentRow;
 
 	FTimerHandle TimerHandle;
 	float TimerRate;

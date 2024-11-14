@@ -18,6 +18,8 @@ void AMatchThreeGameMode::StartPlay()
 	// Collect dependencies
 	GameBoard = Cast<AGameBoard>(UGameplayStatics::GetActorOfClass(this, AGameBoard::StaticClass()));
 
+	GameBoard->OnMatchFoundDelegate.AddUniqueDynamic(this, &AMatchThreeGameMode::HandleMatchFound);
+
 	// Fill the columns
 	for (int Column = 0; Column < GameBoard->GetBoardWidth(); Column++)
 	{
@@ -25,4 +27,9 @@ void AMatchThreeGameMode::StartPlay()
 		Task->Init(GameBoard, Column, GameBoard->GetBoardHeight(), 1.f);
 		Task->Execute();
 	}
+}
+
+void AMatchThreeGameMode::HandleMatchFound()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Match found!"));
 }
