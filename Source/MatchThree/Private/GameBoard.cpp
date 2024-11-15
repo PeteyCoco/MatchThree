@@ -171,7 +171,7 @@ void AGameBoard::GetMatch(AGemBase* InGem, FMatch& OutMatch) const
 	OutMatch = FMatch();
 
 	// Cannot match gems that have been matched already
-	if (!InGem || InGem->bIsMatched)
+	if (!InGem || InGem->bCannotMatch)
 		return;
 
 	const FBoardLocation InLocation = GetBoardLocation(InGem);
@@ -188,7 +188,7 @@ void AGameBoard::GetMatch(AGemBase* InGem, FMatch& OutMatch) const
 					break;
 
 				AGemBase* CandidateGem = GetGem({ X, Y });
-				if (IsInPosition(CandidateGem) && CandidateGem && !CandidateGem->bIsMatched && CandidateGem->GetType() == InGem->GetType())
+				if (IsInPosition(CandidateGem) && CandidateGem && !CandidateGem->bCannotMatch && CandidateGem->GetType() == InGem->GetType())
 				{
 					Matches.Add({ X, Y });
 				}
@@ -361,7 +361,7 @@ void AGameBoard::MarkAsMatched(const TArray<FBoardLocation>& Locations)
 	for (FBoardLocation Location : Locations)
 	{
 		AGemBase* Gem = GetGem(Location);
-		if (Gem) Gem->bIsMatched = true;
+		if (Gem) Gem->bCannotMatch = true;
 	}
 }
 

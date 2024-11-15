@@ -6,8 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "MatchThreePawn.generated.h"
 
-class AGameBoard;
 class AGemBase;
+class AMatchThreeGameMode;
 class ASelectionIndicator;
 class UInputAction;
 class UInputMappingContext;
@@ -40,7 +40,6 @@ protected:
 
 	void HandleGemClicked(AGemBase* HitGem);
 
-
 	UPROPERTY(EditDefaultsOnly, Category = "Selection")
 	TSubclassOf<ASelectionIndicator> SelectionIndicatorClass;
 
@@ -51,11 +50,11 @@ protected:
 	AGemBase* SelectedGem;
 
 	UPROPERTY(VisibleInstanceOnly, Category = "GameBoard")
-	AGameBoard* GameBoard;
+	AMatchThreeGameMode* GameMode;
 
 private:
 
-	AGameBoard* GetGameBoard();
+	AMatchThreeGameMode* GetGameMode();
 
 	void ClearSelection();
 	void SelectGem(AGemBase* Gem);

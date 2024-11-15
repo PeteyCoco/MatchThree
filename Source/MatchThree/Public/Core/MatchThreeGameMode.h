@@ -25,6 +25,11 @@ protected:
 	virtual void StartPlay() override;
 	//~ End AGameModeBase interface
 
+public:
+	void SwapGems(AGemBase* GemA, AGemBase* GemB);
+
+	bool CanSwapGems(AGemBase* GemA, AGemBase* GemB);
+
 protected:
 	UPROPERTY()
 	TObjectPtr<AGameBoard> GameBoard;

@@ -5,7 +5,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "GameBoard.h"
+#include "Core/MatchThreeGameMode.h"
 #include "GemBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "MatchThree/MatchThree.h"
@@ -69,17 +69,10 @@ void AMatchThreePawn::HandleGemClicked(AGemBase* HitGem)
 	}
 	else if (HitGem != SelectedGem)
 	{
-		GameBoard = !GameBoard ? GetGameBoard() : GameBoard;
-		if (GameBoard && GameBoard->CanSwapGems(SelectedGem, HitGem))
+		GameMode = !GameMode ? GetGameMode() : GameMode;
+		if (GameMode && GameMode->CanSwapGems(HitGem, SelectedGem))
 		{
-			GameBoard->SwapGems(SelectedGem, HitGem);
-			//TArray<AGemBase*> GemsToDestroy;
-			//GameBoard->GetMatches(SelectedGem, GemsToDestroy);
-			//GameBoard->GetMatches(HitGem, GemsToDestroy);
-			//for (auto Gem : GemsToDestroy)
-			//{
-			//	Gem->Destroy();
-			//}
+			GameMode->SwapGems(SelectedGem, HitGem);
 			ClearSelection();
 		}
 		else
@@ -94,9 +87,9 @@ void AMatchThreePawn::HandleGemClicked(AGemBase* HitGem)
 	}
 }
 
-AGameBoard* AMatchThreePawn::GetGameBoard()
+AMatchThreeGameMode* AMatchThreePawn::GetGameMode()
 {
-	return Cast<AGameBoard>(UGameplayStatics::GetActorOfClass(this, AGameBoard::StaticClass()));
+	return Cast<AMatchThreeGameMode>(UGameplayStatics::GetGameMode(this));
 }
 
 void AMatchThreePawn::ClearSelection()

@@ -8,6 +8,7 @@
 #include "Board/TaskPool.h"
 #include "Board/TaskAddGemToColumn.h"
 #include "Board/TaskCollapseAndFill.h"
+#include "Tasks/TaskSwapGems.h"
 #include "Kismet/GameplayStatics.h"
 
 void AMatchThreeGameMode::BeginPlay()
@@ -32,6 +33,20 @@ void AMatchThreeGameMode::StartPlay()
 		Task->Init(GameBoard, Column, GameBoard->GetBoardHeight(), .2f);
 		Task->Execute();
 	}
+}
+
+void AMatchThreeGameMode::SwapGems(AGemBase* GemA, AGemBase* GemB)
+{
+	UTaskSwapGems* TaskSwapGems = NewObject<UTaskSwapGems>(this);
+	TaskPool->AddTask(TaskSwapGems);
+
+	TaskSwapGems->Init(GameBoard, GameBoard->GetBoardLocation(GemA), GameBoard->GetBoardLocation(GemB));
+	TaskSwapGems->Execute();
+}
+
+bool AMatchThreeGameMode::CanSwapGems(AGemBase* GemA, AGemBase* GemB)
+{
+	return GameBoard->CanSwapGems(GemA, GemB);
 }
 
 void AMatchThreeGameMode::HandleMatchesFound(TArray<FMatch>& Matches)
