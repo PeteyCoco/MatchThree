@@ -99,24 +99,6 @@ bool AGameBoard::SwapWillMatch(const FBoardLocation& LocationA, const FBoardLoca
 	return false;
 }
 
-void AGameBoard::SwapGems(AGemBase* GemA, AGemBase* GemB)
-{
-	if (!GemA || !GemB) return;
-
-	CurrentSwap.FirstGem = GemA;
-	CurrentSwap.SecondGem = GemB;
-
-	const FBoardLocation FirstInLocation = GetBoardLocation(CurrentSwap.FirstGem);
-	const FBoardLocation SecondInLocation = GetBoardLocation(CurrentSwap.SecondGem);
-
-	CurrentSwap.FirstGem->MoveTo(GetWorldLocation(SecondInLocation));
-	CurrentSwap.SecondGem->MoveTo(GetWorldLocation(FirstInLocation));
-
-	// Swap internal board positions
-	SetGem(CurrentSwap.SecondGem, FirstInLocation);
-	SetGem(CurrentSwap.FirstGem, SecondInLocation);
-}
-
 void AGameBoard::MoveIntoPosition(const FBoardLocation& BoardLocation)
 {
 	AGemBase* Gem = GetGem(BoardLocation);
@@ -227,6 +209,61 @@ void AGameBoard::GetMatch(AGemBase* InGem, FMatch& OutMatch) const
 	}
 }
 
+bool AGameBoard::MatchFound(const FBoardLocation& Location, FMatch& OutMatch) const
+{
+	OutMatch = FMatch();
+
+	// Lambda for growing matches in a specific direction
+	auto GrowMatches = [&](TArray<FBoardLocation>& Matches, const FBoardLocation& Start, int StepX, int StepY, int Min, int Max)
+		{
+			AGemBase* StartGem = GetGem(Start);
+			if (!StartGem) return;
+
+			for (int i = 1; i <= 2; ++i) // Check up to 2 steps in the specified direction
+			{
+				int X = Start.X + i * StepX;
+				int Y = Start.Y + i * StepY;
+
+				if (X < Min || X > Max || Y < Min || Y > Max)
+					break;
+
+				AGemBase* CandidateGem = GetGem({ X, Y });
+				if (IsInPosition(CandidateGem) && CandidateGem && !CandidateGem->bCannotMatch && CandidateGem->GetType() == StartGem->GetType())
+				{
+					Matches.Add({ X, Y });
+				}
+				else
+				{
+					break;
+				}
+			}
+		};
+
+	// Horizontal match check
+	TArray<FBoardLocation> Matches = { Location };
+	GrowMatches(Matches, Location, -1, 0, 0, BoardWidth - 1); // Grow left
+	GrowMatches(Matches, Location, 1, 0, 0, BoardWidth - 1);  // Grow right
+
+	if (Matches.Num() >= 3)
+	{
+		OutMatch.AddLocations(Matches);
+		return true;
+	}
+
+	// Vertical match check
+	Matches.Empty();
+	Matches.Add(Location);
+	GrowMatches(Matches, Location, 0, -1, 0, BoardHeight - 1); // Grow down
+	GrowMatches(Matches, Location, 0, 1, 0, BoardHeight - 1);  // Grow up
+
+	if (Matches.Num() >= 3)
+	{
+		OutMatch.AddLocations(Matches);
+		return true;
+	}
+	return false;
+}
+
 AGemBase* AGameBoard::SpawnGem(int32 Column, EGemType GemType)
 {
 	const int Row = Columns[Column].GetHeight();
@@ -256,17 +293,6 @@ void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 		MarkAsMatched(Match.GetLocations());
 		TArray<FMatch> Matches{ Match };
 		OnMatchFoundDelegate.Broadcast(Matches);
-		CurrentSwap.FirstGem = nullptr;
-		CurrentSwap.SecondGem = nullptr;
-	}
-	else
-	{
-		if (IsInPosition(CurrentSwap.FirstGem) && IsInPosition(CurrentSwap.SecondGem))
-		{ 
-			SwapGems(CurrentSwap.SecondGem, CurrentSwap.FirstGem);
-			CurrentSwap.FirstGem = nullptr;
-			CurrentSwap.SecondGem = nullptr;
-		}
 	}
 }
 

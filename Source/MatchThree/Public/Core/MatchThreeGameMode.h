@@ -11,6 +11,16 @@ class AGameBoard;
 class AGemBase;
 class UTaskPool;
 
+/* The locations involved in a swap action */
+USTRUCT()
+struct FSwapPair
+{
+	GENERATED_BODY()
+
+	FBoardLocation LocationA;
+	FBoardLocation LocationB;
+};
+
 /**
  * 
  */
@@ -37,7 +47,13 @@ protected:
 	UFUNCTION()
 	void HandleMatchesFound(TArray<FMatch>& Matches);
 
+	UFUNCTION()
+	void HandleCompletedSwapAction();
+
 	// Task pool for overseeing ongoing tasks
 	UPROPERTY()
 	UTaskPool* TaskPool;
+
+	// The currently swapping locations
+	TSharedPtr<FSwapPair> CurrentSwapAction;
 };

@@ -16,16 +16,6 @@ class UInternalBoard;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMatchFoundSignature, TArray<FMatch>&, Matches);
 
-/* The gems involved in a swap action */
-USTRUCT()
-struct FSwapPair
-{
-	GENERATED_BODY()
-
-	AGemBase* FirstGem;
-	AGemBase* SecondGem;
-};
-
 /*
 * Base class for the game board in a match three game
 */
@@ -71,9 +61,6 @@ public:
 	// Return true if the swapping the two locations will yield a match
 	bool SwapWillMatch(const FBoardLocation& LocationA, const FBoardLocation& LocationB) const;
 
-	// Swap the gems' position on the board
-	void SwapGems(AGemBase* GemA, AGemBase* GemB);
-
 	void MoveIntoPosition(const FBoardLocation& BoardLocation);
 
 	void MoveGemToBoardLocation(AGemBase* Gem, const FBoardLocation& NewBoardLocation);
@@ -90,6 +77,9 @@ public:
 
 	// Return an array of gems that form a match with the gem at the given location
 	void GetMatch(AGemBase* InGem, FMatch& OutMatch) const;
+
+	// Return true if a match is found at a location
+	bool MatchFound(const FBoardLocation& Location, FMatch& OutMatch) const;
 
 	// Logic to execute when a gem has finished a MoveTo
 	UFUNCTION()
@@ -149,8 +139,6 @@ protected:
 	// Scale of the gems
 	UPROPERTY(EditAnywhere, Category = "Gem Properties")
 	float GemScale = 0.9f;
-
-	FSwapPair CurrentSwap;
 
 	void DestroyGem(AGemBase* Gem);
 

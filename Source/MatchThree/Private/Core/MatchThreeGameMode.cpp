@@ -38,32 +38,17 @@ void AMatchThreeGameMode::StartPlay()
 
 void AMatchThreeGameMode::SwapGems(AGemBase* GemA, AGemBase* GemB)
 {
-	const FBoardLocation LocationA = GameBoard->GetBoardLocation(GemA);
-	const FBoardLocation LocationB = GameBoard->GetBoardLocation(GemB);
+	// Set the current swap action
+	CurrentSwapAction = MakeShared<FSwapPair>();
+	CurrentSwapAction->LocationA = GameBoard->GetBoardLocation(GemA);
+	CurrentSwapAction->LocationB = GameBoard->GetBoardLocation(GemB);
 
-	if (GameBoard->SwapWillMatch(LocationA, LocationB))
-	{
-
-	}
-	else
-	{
-		// Swap the gems back and forth
-		UTaskSequential* TaskSwapBackAndForth = NewObject<UTaskSequential>(this);
-
-		UTaskSwapGems* TaskSwapTo = NewObject<UTaskSwapGems>(this);
-		UTaskSwapGems* TaskSwapBack = NewObject<UTaskSwapGems>(this);
-
-		TaskSwapTo->Init(GameBoard, LocationA, LocationB);
-		TaskSwapBack->Init(GameBoard, LocationA, LocationB);
-
-		TaskSwapBackAndForth->AddTask(TaskSwapTo);
-		TaskSwapBackAndForth->AddTask(TaskSwapBack);
-
-		TaskPool->AddTask(TaskSwapBackAndForth);
-
-		TaskSwapBackAndForth->Execute();
-	}
-
+	// Swap the gems
+	UTaskSwapGems* TaskSwapGems = NewObject<UTaskSwapGems>(this);
+	TaskSwapGems->Init(GameBoard, CurrentSwapAction->LocationA, CurrentSwapAction->LocationB);
+	TaskSwapGems->OnTaskComplete.AddUniqueDynamic(this, &AMatchThreeGameMode::HandleCompletedSwapAction);
+	TaskPool->AddTask(TaskSwapGems);
+	TaskSwapGems->Execute();
 }
 
 bool AMatchThreeGameMode::CanSwapGems(AGemBase* GemA, AGemBase* GemB)
@@ -97,4 +82,30 @@ void AMatchThreeGameMode::HandleMatchesFound(TArray<FMatch>& Matches)
 		TaskCollapseAndFill->Init(GameBoard, Column, NumberToAdd, .2f);
 		TaskCollapseAndFill->Execute();
 	}
+}
+
+void AMatchThreeGameMode::HandleCompletedSwapAction()
+{
+	FMatch MatchAtLocationA;
+	const bool bMatchFoundAtLocationA = GameBoard->MatchFound(CurrentSwapAction->LocationA, MatchAtLocationA);
+
+	FMatch MatchAtLocationB;
+	const bool bMatchFoundAtLocationB = GameBoard->MatchFound(CurrentSwapAction->LocationB, MatchAtLocationB);
+
+	if (bMatchFoundAtLocationA || bMatchFoundAtLocationB)
+	{
+
+	}
+	else
+	{
+		// Swap the gems back
+		UTaskSwapGems* TaskSwapGems = NewObject<UTaskSwapGems>(this);
+		TaskSwapGems->Init(GameBoard, CurrentSwapAction->LocationA, CurrentSwapAction->LocationB);
+		TaskSwapGems->OnTaskComplete.AddUniqueDynamic(this, &AMatchThreeGameMode::HandleCompletedSwapAction);
+		TaskPool->AddTask(TaskSwapGems);
+		TaskSwapGems->Execute();
+	}
+
+	// Clear the current swap action
+	CurrentSwapAction.Reset();
 }
