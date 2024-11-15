@@ -281,7 +281,7 @@ void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 	FMatch Match;
 	GetMatch(InGem, Match);
 
-	if (!Match.GemLocations.IsEmpty())
+	if (!Match.IsEmpty())
 	{
 		TArray<FMatch> Matches{ Match };
 		OnMatchFoundDelegate.Broadcast(Matches);

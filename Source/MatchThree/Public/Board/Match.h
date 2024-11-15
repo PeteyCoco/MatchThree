@@ -45,9 +45,12 @@ struct FMatch
 	void AddLocation(const FBoardLocation& BoardLocation);
 	void AddLocations(const TArray<FBoardLocation>& BoardLocations);
 
+	// Check if the match contains no gems
+	bool IsEmpty() const { return GemLocations.IsEmpty(); }
+
 	// Get all of the board locations with this column number
 	TArray<FBoardLocation> GetLocationsInColumn(int32 Column) const;
 
-	TMap<int32, TArray<int32>> GemLocations;
+	TArray<FBoardLocation> GemLocations;
 	
 };

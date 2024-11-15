@@ -5,29 +5,23 @@
 
 void FMatch::AddLocation(const FBoardLocation& BoardLocation)
 {
-	TArray<int32>& ColumnValues = GemLocations.FindOrAdd(BoardLocation.X);
-	ColumnValues.Add(BoardLocation.Y);
+	GemLocations.Add(BoardLocation);
 }
 
 void FMatch::AddLocations(const TArray<FBoardLocation>& BoardLocations)
 {
-	for (const FBoardLocation& BoardLocation : BoardLocations)
-	{
-		AddLocation(BoardLocation);
-	}
+	GemLocations.Append(BoardLocations);
 }
 
 TArray<FBoardLocation> FMatch::GetLocationsInColumn(int32 Column) const
 {
-	const TArray<int32>* RowsPtr = GemLocations.Find(Column);
-	TArray<FBoardLocation> BoardLocations;
-	if (RowsPtr)
+	TArray<FBoardLocation> OutLocations;
+	for (const FBoardLocation& Location : GemLocations)
 	{
-		TArray<int32> Rows = *RowsPtr;
-		for (int32 Row : Rows)
+		if (Location.X == Column)
 		{
-			BoardLocations.Add({ Column, Row });
+			OutLocations.Add(Location);
 		}
 	}
-	return BoardLocations;
+	return OutLocations;
 }
