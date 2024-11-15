@@ -48,9 +48,13 @@ struct FMatch
 	// Check if the match contains no gems
 	bool IsEmpty() const { return GemLocations.IsEmpty(); }
 
+	// Get the locations of this match
+	const TArray<FBoardLocation>& GetLocations() { return GemLocations; }
+
 	// Get all of the board locations with this column number
 	TArray<FBoardLocation> GetLocationsInColumn(int32 Column) const;
 
+private:
 	TArray<FBoardLocation> GemLocations;
 	
 };

@@ -168,89 +168,54 @@ bool AGameBoard::IsEmpty(const FBoardLocation& InLocation) const
 
 void AGameBoard::GetMatch(AGemBase* InGem, FMatch& OutMatch) const
 {
-	if (!InGem)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Tried matching to a nullptr gem!"));
+	OutMatch = FMatch();
+
+	// Cannot match gems that have been matched already
+	if (!InGem || InGem->bIsMatched)
 		return;
-	}
+
 	const FBoardLocation InLocation = GetBoardLocation(InGem);
 
-	const int XMin = FMath::Max(0, InLocation.X - 2);
-	const int XMax = FMath::Min(InLocation.X + 2, BoardWidth - 1);
+	// Lambda for growing matches in a specific direction
+	auto GrowMatches = [&](TArray<FBoardLocation>& Matches, const FBoardLocation& Start, int StepX, int StepY, int Min, int Max)
+		{
+			for (int i = 1; i <= 2; ++i) // Check up to 2 steps in the specified direction
+			{
+				int X = Start.X + i * StepX;
+				int Y = Start.Y + i * StepY;
 
-	// Check horizontal matches
-	TArray<FBoardLocation> Matches;
-	Matches.Add(InLocation);
+				if (X < Min || X > Max || Y < Min || Y > Max)
+					break;
 
-	// Grow the left
-	for (int i = InLocation.X - 1; XMin <= i; i--)
-	{
-		AGemBase* CandidateGem = GetGem({ i,InLocation.Y });
-		if (IsInPosition(CandidateGem) && CandidateGem && CandidateGem->GetType() == InGem->GetType())
-		{
-			Matches.Add({i,InLocation.Y });
-		}
-		else
-		{
-			break;
-		}
-	}
-	// Grow the right
-	for (int i = InLocation.X + 1; i <= XMax; i++)
-	{
-		AGemBase* CandidateGem = GetGem({ i,InLocation.Y });
-		if (IsInPosition(CandidateGem) && CandidateGem && CandidateGem->GetType() == InGem->GetType())
-		{
-			Matches.Add({ i,InLocation.Y });
-		}
-		else
-		{
-			break;
-		}
-	}
+				AGemBase* CandidateGem = GetGem({ X, Y });
+				if (IsInPosition(CandidateGem) && CandidateGem && !CandidateGem->bIsMatched && CandidateGem->GetType() == InGem->GetType())
+				{
+					Matches.Add({ X, Y });
+				}
+				else
+				{
+					break;
+				}
+			}
+		};
 
-	// Check that at least 3 matches occured
+	// Horizontal match check
+	TArray<FBoardLocation> Matches = { InLocation };
+	GrowMatches(Matches, InLocation, -1, 0, 0, BoardWidth - 1); // Grow left
+	GrowMatches(Matches, InLocation, 1, 0, 0, BoardWidth - 1);  // Grow right
+
 	if (Matches.Num() >= 3)
 	{
 		OutMatch.AddLocations(Matches);
 		return;
 	}
 
-	// Check vertical matches
-	const int YMin = FMath::Max(0, InLocation.Y - 2);
-	const int YMax = FMath::Min(InLocation.Y + 2, BoardHeight - 1);
-
+	// Vertical match check
 	Matches.Empty();
 	Matches.Add(InLocation);
+	GrowMatches(Matches, InLocation, 0, -1, 0, BoardHeight - 1); // Grow down
+	GrowMatches(Matches, InLocation, 0, 1, 0, BoardHeight - 1);  // Grow up
 
-	// Grow the bottom
-	for (int i = InLocation.Y - 1; YMin <= i; i--)
-	{
-		AGemBase* CandidateGem = GetGem({ InLocation.X,i });
-		if (IsInPosition(CandidateGem) && CandidateGem && CandidateGem->GetType() == InGem->GetType())
-		{
-			Matches.Add({ InLocation.X,i });
-		}
-		else
-		{
-			break;
-		}
-	}
-	// Grow the top
-	for (int i = InLocation.Y + 1; i <= YMax; i++)
-	{
-		AGemBase* CandidateGem = GetGem({ InLocation.X,i });
-		if (IsInPosition(CandidateGem) && CandidateGem && CandidateGem->GetType() == InGem->GetType())
-		{
-			Matches.Add({ InLocation.X,i });
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	// Check that at least 3 matches occured
 	if (Matches.Num() >= 3)
 	{
 		OutMatch.AddLocations(Matches);
@@ -283,6 +248,7 @@ void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 
 	if (!Match.IsEmpty())
 	{
+		MarkAsMatched(Match.GetLocations());
 		TArray<FMatch> Matches{ Match };
 		OnMatchFoundDelegate.Broadcast(Matches);
 		CurrentSwap.FirstGem = nullptr;
@@ -388,6 +354,15 @@ void AGameBoard::Remove(AGemBase* InGem)
 {
 	const FBoardLocation BoardLocation = GetBoardLocation(InGem);
 	SetGem(nullptr, BoardLocation);
+}
+
+void AGameBoard::MarkAsMatched(const TArray<FBoardLocation>& Locations)
+{
+	for (FBoardLocation Location : Locations)
+	{
+		AGemBase* Gem = GetGem(Location);
+		if (Gem) Gem->bIsMatched = true;
+	}
 }
 
 bool operator==(const FBoardLocation& A, const FBoardLocation& B)

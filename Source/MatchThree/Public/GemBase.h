@@ -63,6 +63,9 @@ public:
 	// Get the gem type
 	EGemType GetType() const { return Type; }
 
+	// True if this gem is part of a match
+	bool bIsMatched = false;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Gem Properties")
 	TObjectPtr<UStaticMeshComponent> StaticMesh;

@@ -117,6 +117,9 @@ public:
 	// Remove the given gem from the board
 	void Remove(AGemBase* InGem);
 
+	// Mark the given gems as matched so that they won't be matched with
+	void MarkAsMatched(const TArray<FBoardLocation>& Gems);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Board Properties")
 	int32 BoardWidth = 8;

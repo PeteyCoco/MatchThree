@@ -5,12 +5,15 @@
 
 void FMatch::AddLocation(const FBoardLocation& BoardLocation)
 {
-	GemLocations.Add(BoardLocation);
+	GemLocations.AddUnique(BoardLocation);
 }
 
 void FMatch::AddLocations(const TArray<FBoardLocation>& BoardLocations)
 {
-	GemLocations.Append(BoardLocations);
+	for (const FBoardLocation& Location : BoardLocations)
+	{
+		GemLocations.AddUnique(Location);
+	}
 }
 
 TArray<FBoardLocation> FMatch::GetLocationsInColumn(int32 Column) const
