@@ -4,7 +4,6 @@
 #include "GameBoard.h"
 
 #include "GemBase.h"
-#include "DrawDebugHelpers.h"
 #include "TimerManager.h"
 #include "Board/BoardColumn.h"
 
@@ -279,8 +278,6 @@ AGemBase* AGameBoard::SpawnGem(int32 Column, EGemType GemType)
 
 void AGameBoard::HandleGemMoveToComplete(AGemBase* InGem)
 {
-	if (InGem && InGem->bCannotMatch) return;
-
 	// Look for matches
 	FMatch Match;
 	GetMatch(InGem, Match);

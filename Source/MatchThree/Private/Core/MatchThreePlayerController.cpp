@@ -22,11 +22,4 @@ void AMatchThreePlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FHitResult HitResult;
-	GetHitResultUnderCursor(ECC_Gem, true, HitResult);
-
-	if (HitResult.bBlockingHit)
-	{
-		DrawDebugSphere(GetWorld(), HitResult.GetActor()->GetActorLocation(), 100.f, 10, FColor::Red);
-	}
 }
