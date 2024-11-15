@@ -9,6 +9,7 @@
 #include "Board/TaskAddGemToColumn.h"
 #include "Board/TaskCollapseAndFill.h"
 #include "Tasks/TaskSwapGems.h"
+#include "Tasks/TaskSequential.h"
 #include "Kismet/GameplayStatics.h"
 
 void AMatchThreeGameMode::BeginPlay()
@@ -37,11 +38,32 @@ void AMatchThreeGameMode::StartPlay()
 
 void AMatchThreeGameMode::SwapGems(AGemBase* GemA, AGemBase* GemB)
 {
-	UTaskSwapGems* TaskSwapGems = NewObject<UTaskSwapGems>(this);
-	TaskPool->AddTask(TaskSwapGems);
+	const FBoardLocation LocationA = GameBoard->GetBoardLocation(GemA);
+	const FBoardLocation LocationB = GameBoard->GetBoardLocation(GemB);
 
-	TaskSwapGems->Init(GameBoard, GameBoard->GetBoardLocation(GemA), GameBoard->GetBoardLocation(GemB));
-	TaskSwapGems->Execute();
+	if (GameBoard->SwapWillMatch(LocationA, LocationB))
+	{
+
+	}
+	else
+	{
+		// Swap the gems back and forth
+		UTaskSequential* TaskSwapBackAndForth = NewObject<UTaskSequential>(this);
+
+		UTaskSwapGems* TaskSwapTo = NewObject<UTaskSwapGems>(this);
+		UTaskSwapGems* TaskSwapBack = NewObject<UTaskSwapGems>(this);
+
+		TaskSwapTo->Init(GameBoard, LocationA, LocationB);
+		TaskSwapBack->Init(GameBoard, LocationA, LocationB);
+
+		TaskSwapBackAndForth->AddTask(TaskSwapTo);
+		TaskSwapBackAndForth->AddTask(TaskSwapBack);
+
+		TaskPool->AddTask(TaskSwapBackAndForth);
+
+		TaskSwapBackAndForth->Execute();
+	}
+
 }
 
 bool AMatchThreeGameMode::CanSwapGems(AGemBase* GemA, AGemBase* GemB)
