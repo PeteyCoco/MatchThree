@@ -58,9 +58,6 @@ public:
 	// Return true if the given gems can be swapped
 	bool CanSwapGems(AGemBase* GemA, AGemBase* GemB) const;
 
-	// Return true if the swapping the two locations will yield a match
-	bool SwapWillMatch(const FBoardLocation& LocationA, const FBoardLocation& LocationB) const;
-
 	void MoveIntoPosition(const FBoardLocation& BoardLocation);
 
 	void MoveGemToBoardLocation(AGemBase* Gem, const FBoardLocation& NewBoardLocation);

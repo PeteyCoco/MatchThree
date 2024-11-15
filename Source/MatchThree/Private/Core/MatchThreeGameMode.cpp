@@ -38,6 +38,13 @@ void AMatchThreeGameMode::StartPlay()
 
 void AMatchThreeGameMode::SwapGems(AGemBase* GemA, AGemBase* GemB)
 {
+	// Only one swap action at once
+	if (CurrentSwapAction.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Swap already in progress"));
+		return;
+	}
+
 	// Set the current swap action
 	CurrentSwapAction = MakeShared<FSwapPair>();
 	CurrentSwapAction->LocationA = GameBoard->GetBoardLocation(GemA);
@@ -58,7 +65,7 @@ bool AMatchThreeGameMode::CanSwapGems(AGemBase* GemA, AGemBase* GemB)
 
 void AMatchThreeGameMode::HandleMatchesFound(TArray<FMatch>& Matches)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Matches found! Destroying..."));
+	UE_LOG(LogTemp, Warning, TEXT("Matches found!"));
 
 	for (int32 Column = 0; Column < GameBoard->GetBoardWidth(); Column++)
 	{
@@ -86,26 +93,40 @@ void AMatchThreeGameMode::HandleMatchesFound(TArray<FMatch>& Matches)
 
 void AMatchThreeGameMode::HandleCompletedSwapAction()
 {
-	FMatch MatchAtLocationA;
-	const bool bMatchFoundAtLocationA = GameBoard->MatchFound(CurrentSwapAction->LocationA, MatchAtLocationA);
-
-	FMatch MatchAtLocationB;
-	const bool bMatchFoundAtLocationB = GameBoard->MatchFound(CurrentSwapAction->LocationB, MatchAtLocationB);
+	TArray<FMatch> Matches{ {}, {} };
+	const bool bMatchFoundAtLocationA = GameBoard->MatchFound(CurrentSwapAction->LocationA, Matches[0]);
+	const bool bMatchFoundAtLocationB = GameBoard->MatchFound(CurrentSwapAction->LocationB, Matches[1]);
 
 	if (bMatchFoundAtLocationA || bMatchFoundAtLocationB)
 	{
-
+		// HandleMatchesFound(Matches);
+		ClearCurrentSwapAction();
 	}
 	else
 	{
 		// Swap the gems back
 		UTaskSwapGems* TaskSwapGems = NewObject<UTaskSwapGems>(this);
 		TaskSwapGems->Init(GameBoard, CurrentSwapAction->LocationA, CurrentSwapAction->LocationB);
-		TaskSwapGems->OnTaskComplete.AddUniqueDynamic(this, &AMatchThreeGameMode::HandleCompletedSwapAction);
+		TaskSwapGems->OnTaskComplete.AddUniqueDynamic(this, &AMatchThreeGameMode::HandleUndoneSwapAction);
 		TaskPool->AddTask(TaskSwapGems);
 		TaskSwapGems->Execute();
-	}
+	}	
+}
 
-	// Clear the current swap action
+void AMatchThreeGameMode::HandleUndoneSwapAction()
+{
+	TArray<FMatch> Matches{ {}, {} };
+	const bool bMatchFoundAtLocationA = GameBoard->MatchFound(CurrentSwapAction->LocationA, Matches[0]);
+	const bool bMatchFoundAtLocationB = GameBoard->MatchFound(CurrentSwapAction->LocationB, Matches[1]);
+
+	if (bMatchFoundAtLocationA || bMatchFoundAtLocationB)
+	{
+		// HandleMatchesFound(Matches);
+	}
+	ClearCurrentSwapAction();
+}
+
+void AMatchThreeGameMode::ClearCurrentSwapAction()
+{
 	CurrentSwapAction.Reset();
 }

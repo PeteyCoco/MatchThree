@@ -44,11 +44,21 @@ protected:
 	UPROPERTY()
 	TObjectPtr<AGameBoard> GameBoard;
 
+	// Method to execute after matches are found
 	UFUNCTION()
 	void HandleMatchesFound(TArray<FMatch>& Matches);
 
+	// Method to execute after a swap action is completed
 	UFUNCTION()
 	void HandleCompletedSwapAction();
+
+	// Method to execute after a swap action is undone (we still check for matches)
+	UFUNCTION()
+	void HandleUndoneSwapAction();
+
+	// Clear the current swap action
+	UFUNCTION()
+	void ClearCurrentSwapAction();
 
 	// Task pool for overseeing ongoing tasks
 	UPROPERTY()

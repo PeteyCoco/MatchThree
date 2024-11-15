@@ -94,11 +94,6 @@ bool AGameBoard::CanSwapGems(AGemBase* GemA, AGemBase* GemB) const
 	return false;
 }
 
-bool AGameBoard::SwapWillMatch(const FBoardLocation& LocationA, const FBoardLocation& LocationB) const
-{
-	return false;
-}
-
 void AGameBoard::MoveIntoPosition(const FBoardLocation& BoardLocation)
 {
 	AGemBase* Gem = GetGem(BoardLocation);
