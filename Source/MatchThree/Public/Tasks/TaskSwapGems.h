@@ -33,4 +33,6 @@ private:
 	AGameBoard* GameBoard;
 	FBoardLocation LocationA;
 	FBoardLocation LocationB;
+
+	bool bCallbackCalled = false;
 };

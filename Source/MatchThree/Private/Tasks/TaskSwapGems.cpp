@@ -34,8 +34,10 @@ void UTaskSwapGems::Execute()
 
 void UTaskSwapGems::MoveToCompleteCallback(AGemBase* MovedGem)
 {
-	if (GameBoard->IsInPosition(LocationA) && GameBoard->IsInPosition(LocationB))
+	if (!bCallbackCalled && GameBoard->IsInPosition(LocationA) && GameBoard->IsInPosition(LocationB))
 	{
+		bCallbackCalled = true;
+
 		AGemBase* GemA = GameBoard->GetGem(LocationA);
 		AGemBase* GemB = GameBoard->GetGem(LocationB);
 

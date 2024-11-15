@@ -36,8 +36,6 @@ class MATCHTHREE_API AGemBase : public AActor
 	GENERATED_BODY()
 	
 	//~ Begin AActor interface
-public:
-	virtual void Tick(float DeltaTime) override;
 protected:
 	virtual void BeginPlay() override;
 	//~ End AActor interface

@@ -9,6 +9,7 @@
 
 class AGameBoard;
 class AGemBase;
+class AScoreActor;
 class UTaskPool;
 
 /* The locations involved in a swap action */
@@ -43,6 +44,10 @@ public:
 protected:
 	UPROPERTY()
 	TObjectPtr<AGameBoard> GameBoard;
+
+	// Actor to spawn when a match is scored
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AScoreActor> ScoreActorClass;
 
 	// Method to execute after matches are found
 	UFUNCTION()

@@ -29,9 +29,6 @@ void AGemBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AGemBase::Tick(float DeltaTime)
-{
-}
 
 void AGemBase::SetData(UGemDataAsset* GemData)
 {

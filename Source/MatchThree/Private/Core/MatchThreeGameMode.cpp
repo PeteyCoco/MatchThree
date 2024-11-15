@@ -8,6 +8,7 @@
 #include "Board/TaskPool.h"
 #include "Board/TaskAddGemToColumn.h"
 #include "Board/TaskCollapseAndFill.h"
+#include "Score/ScoreActor.h"
 #include "Tasks/TaskSwapGems.h"
 #include "Tasks/TaskSequential.h"
 #include "Kismet/GameplayStatics.h"
@@ -67,6 +68,15 @@ void AMatchThreeGameMode::HandleMatchesFound(TArray<FMatch>& Matches)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Matches found!"));
 
+	for (const FMatch& Match : Matches)
+	{
+		if (!Match.IsEmpty())
+		{
+			AScoreActor* ScoreActor = GetWorld()->SpawnActor<AScoreActor>(ScoreActorClass);
+			ScoreActor->SetActorLocation(GameBoard->GetWorldLocation(Match.GetLocations()[0]));
+		}
+	}
+
 	for (int32 Column = 0; Column < GameBoard->GetBoardWidth(); Column++)
 	{
 		// Track the number of matched gems in each column
@@ -99,7 +109,7 @@ void AMatchThreeGameMode::HandleCompletedSwapAction()
 
 	if (bMatchFoundAtLocationA || bMatchFoundAtLocationB)
 	{
-		// HandleMatchesFound(Matches);
+		HandleMatchesFound(Matches);
 		ClearCurrentSwapAction();
 	}
 	else
@@ -121,7 +131,7 @@ void AMatchThreeGameMode::HandleUndoneSwapAction()
 
 	if (bMatchFoundAtLocationA || bMatchFoundAtLocationB)
 	{
-		// HandleMatchesFound(Matches);
+		HandleMatchesFound(Matches);
 	}
 	ClearCurrentSwapAction();
 }
