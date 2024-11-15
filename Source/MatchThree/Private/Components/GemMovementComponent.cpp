@@ -48,5 +48,5 @@ void UGemMovementComponent::FinishMoveTo()
     GetOwner()->SetActorLocation(TargetLocation);
     Velocity = FVector::ZeroVector;
     OnMoveToCompleteDelegate.Broadcast();
-    OnMoveToCompleteDelegate.Clear();
+    // OnMoveToCompleteDelegate.Clear();
 }

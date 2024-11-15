@@ -125,14 +125,14 @@ void AMatchThreeGameMode::HandleCompletedSwapAction()
 
 void AMatchThreeGameMode::HandleUndoneSwapAction()
 {
-	TArray<FMatch> Matches{ {}, {} };
-	const bool bMatchFoundAtLocationA = GameBoard->MatchFound(CurrentSwapAction->LocationA, Matches[0]);
-	const bool bMatchFoundAtLocationB = GameBoard->MatchFound(CurrentSwapAction->LocationB, Matches[1]);
+	//TArray<FMatch> Matches{ {}, {} };
+	//const bool bMatchFoundAtLocationA = GameBoard->MatchFound(CurrentSwapAction->LocationA, Matches[0]);
+	//const bool bMatchFoundAtLocationB = GameBoard->MatchFound(CurrentSwapAction->LocationB, Matches[1]);
 
-	if (bMatchFoundAtLocationA || bMatchFoundAtLocationB)
-	{
-		HandleMatchesFound(Matches);
-	}
+	//if (bMatchFoundAtLocationA || bMatchFoundAtLocationB)
+	//{
+	//	HandleMatchesFound(Matches);
+	//}
 	ClearCurrentSwapAction();
 }
 

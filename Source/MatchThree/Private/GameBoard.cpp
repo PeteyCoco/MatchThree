@@ -132,14 +132,8 @@ bool AGameBoard::IsInPosition(AGemBase* InGem) const
 bool AGameBoard::IsInPosition(const FBoardLocation& InLocation) const
 {
 	const AGemBase* Gem = GetGem(InLocation);
-	if (!Gem) return true; // An empty location is considered as in position
-
-	const float DistSquaredToBoardLocation = FVector::DistSquared(GetWorldLocation(InLocation), Gem->GetActorLocation());
-	if (DistSquaredToBoardLocation > 10.f || Gem->IsMoving())
-	{
-		return false;
-	}
-	return true;
+	// An empty location is considered as in position
+	return !(Gem && Gem->IsMoving());
 }
 
 bool AGameBoard::IsEmpty(const FBoardLocation& InLocation) const

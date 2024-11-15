@@ -13,6 +13,7 @@ void UTaskSwapGems::Init(AGameBoard* InGameBoard, const FBoardLocation& InLocati
 
 void UTaskSwapGems::Execute()
 {
+	bCallbackCalled = false;
 	AGemBase* GemA = GameBoard->GetGem(LocationA);
 	AGemBase* GemB = GameBoard->GetGem(LocationB);
 

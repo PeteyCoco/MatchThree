@@ -7,13 +7,18 @@
 
 void UTaskPool::AddTask(UTaskBase* InTask)
 {
+	// Clean the list if it's full
+	if (Tasks.Num() >= MaxTasks)
+	{
+		Clean();
+	}
+
 	// Look for an empty space for the task
 	for (int i = 0; i < Tasks.Num(); i++)
 	{
 		if (Tasks[i] == nullptr)
 		{
 			Tasks[i] = InTask;
-			InTask->OnTaskComplete.AddUniqueDynamic(this, &UTaskPool::Clean);
 			return;
 		}
 	}
@@ -22,11 +27,10 @@ void UTaskPool::AddTask(UTaskBase* InTask)
 	if (Tasks.Num() < MaxTasks)
 	{
 		Tasks.Add(InTask);
-		InTask->OnTaskComplete.AddUniqueDynamic(this, &UTaskPool::Clean);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("TaskPool is full with [%d] tasks. Task not added"), Tasks.Num());
+		UE_LOG(LogTemp, Warning, TEXT("TaskPool is full with [%d] active tasks. Task not added"), Tasks.Num());
 	}
 }
 
